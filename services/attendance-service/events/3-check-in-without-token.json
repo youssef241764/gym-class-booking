@@ -1,0 +1,18 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/api/attendance/00000000-0000-4000-8000-000000000000/check-in",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/api/attendance/00000000-0000-4000-8000-000000000000/check-in",
+      "sourceIp": "127.0.0.1"
+    }
+  },
+  "isBase64Encoded": false,
+  "body": "{\"code\":\"123456\"}"
+}
