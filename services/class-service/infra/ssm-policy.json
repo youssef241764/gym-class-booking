@@ -1,0 +1,12 @@
+{
+  "openHour": 6,
+  "closeHour": 23,
+  "minDurationMin": 15,
+  "maxDurationMin": 180,
+  "minLeadMinutes": 30,
+  "changeoverMin": 10,
+  "blockHolidays": true,
+  "holidayCountry": "EG",
+  "maxSeriesOccurrences": 60,
+  "maxCapacity": 60
+}
