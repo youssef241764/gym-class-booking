@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 940" font-family="Segoe UI, Roboto, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker>
+    <marker id="e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
+    <marker id="x" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/></marker>
+    <style>
+      .t{font-weight:700;font-size:14px;fill:#0f172a}
+      .s{font-size:11.5px;fill:#475569}
+      .o{font-size:11px;fill:#0f766e;font-weight:600}
+      .box{fill:#fff;stroke:#94a3b8;stroke-width:1.2;rx:8}
+      .ln{stroke:#334155;stroke-width:1.4;fill:none;marker-end:url(#a)}
+      .ev{stroke:#b45309;stroke-width:1.4;fill:none;stroke-dasharray:6 4;marker-end:url(#e)}
+      .ex{stroke:#7c3aed;stroke-width:1.4;fill:none;marker-end:url(#x)}
+      .lbl{font-size:11px;fill:#334155}
+    </style>
+  </defs>
+  <rect width="1560" height="940" fill="#f8fafc"/>
+  <text x="30" y="36" font-size="22" font-weight="700" fill="#0f172a">Gym Class Booking System — cloud architecture (Group 33)</text>
+  <text x="30" y="58" class="s">All AWS services run in Floci (open-source AWS emulator, Docker). Solid arrows = synchronous HTTPS/JSON; dashed = asynchronous events; purple = external APIs.</text>
+
+  <!-- Presentation -->
+  <rect x="30" y="85" width="210" height="140" class="box"/>
+  <text x="45" y="110" class="t">Users (browser)</text>
+  <text x="45" y="132" class="s">Member · Trainer · Admin</text>
+  <text x="45" y="152" class="s">HTML / CSS / JavaScript SPA</text>
+  <text x="45" y="172" class="s">token in sessionStorage,</text>
+  <text x="45" y="190" class="s">Authorization: Bearer</text>
+
+  <rect x="30" y="260" width="210" height="95" class="box" fill="#ecfdf5"/>
+  <text x="45" y="285" class="t">Amazon S3</text>
+  <text x="45" y="305" class="s">bucket gym-frontend</text>
+  <text x="45" y="323" class="s">static site hosting</text>
+  <text x="45" y="341" class="s">(presentation layer)</text>
+  <path d="M135 260 V228" class="ln"/>
+  <text x="142" y="248" class="lbl">GET pages</text>
+
+  <rect x="30" y="390" width="210" height="120" class="box" fill="#eff6ff"/>
+  <text x="45" y="415" class="t">Amazon Cognito</text>
+  <text x="45" y="435" class="s">user pool gym-users-pool</text>
+  <text x="45" y="453" class="s">groups: member/trainer/admin</text>
+  <text x="45" y="471" class="s">RS256 access tokens, JWKS</text>
+  <text x="45" y="489" class="s">password policy (10+ chars)</text>
+
+  <!-- API layer -->
+  <rect x="290" y="80" width="820" height="470" rx="12" fill="none" stroke="#0f766e" stroke-dasharray="4 4"/>
+  <text x="305" y="102" font-weight="700" fill="#0f766e">Application / API layer — one API Gateway HTTP API + one Lambda per service (independent deployments)</text>
+
+  <g>
+    <rect x="305" y="120" width="190" height="190" class="box"/>
+    <text x="317" y="143" class="t">Identity (shared)</text>
+    <text x="317" y="161" class="o">Team · lead Y. Khaled</text>
+    <text x="317" y="183" class="s">API Gateway gym-identity-api</text>
+    <text x="317" y="201" class="s">Lambda gym-identity</text>
+    <text x="317" y="223" class="s">register · login · logout</text>
+    <text x="317" y="241" class="s">users &amp; roles (admin)</text>
+    <text x="317" y="259" class="s">login throttling</text>
+  </g>
+  <g>
+    <rect x="505" y="120" width="190" height="190" class="box"/>
+    <text x="517" y="143" class="t">Class &amp; Schedule</text>
+    <text x="517" y="161" class="o">Youssef Ahmed Ibrahim</text>
+    <text x="517" y="183" class="s">API GW gym-class-service-api</text>
+    <text x="517" y="201" class="s">Lambda gym-class-service</text>
+    <text x="517" y="223" class="s">scheduling rules R1–R7</text>
+    <text x="517" y="241" class="s">clash detection, series</text>
+    <text x="517" y="259" class="s">publish / reschedule / cancel</text>
+  </g>
+  <g>
+    <rect x="705" y="120" width="190" height="190" class="box"/>
+    <text x="717" y="143" class="t">Booking &amp; Waitlist</text>
+    <text x="717" y="161" class="o">Youssef Amr Sayed</text>
+    <text x="717" y="183" class="s">API GW gym-booking-…-api</text>
+    <text x="717" y="201" class="s">Lambda gym-booking-service</text>
+    <text x="717" y="223" class="s">atomic seats (transactions)</text>
+    <text x="717" y="241" class="s">late-cancel, FIFO promotion</text>
+    <text x="717" y="259" class="s">notifications (Brevo)</text>
+  </g>
+  <g>
+    <rect x="905" y="120" width="190" height="190" class="box"/>
+    <text x="917" y="143" class="t">Attendance &amp; Reliability</text>
+    <text x="917" y="161" class="o">Youssef Khaled Mokhtar</text>
+    <text x="917" y="183" class="s">API GW gym-attendance-…-api</text>
+    <text x="917" y="201" class="s">Lambda gym-attendance-service</text>
+    <text x="917" y="223" class="s">check-in window + codes</text>
+    <text x="917" y="241" class="s">no-shows → strikes → suspend</text>
+    <text x="917" y="259" class="s">reports, CSV export, audit</text>
+  </g>
+  <path d="M240 150 C270 150 280 170 308 175" class="ln"/>
+  <text x="244" y="200" class="lbl">HTTPS/JSON</text>
+  <path d="M308 230 C270 300 260 380 242 420" class="ln"/>
+  <text x="246" y="378" class="lbl">Cognito</text>
+
+  <!-- internal calls -->
+  <path d="M600 312 V336 H800 V314" class="ln"/>
+  <text x="612" y="331" class="lbl">counts &amp; class details</text>
+  <path d="M800 336 V352 H600 V314" class="ln" marker-start="url(#a)"/>
+  <text x="612" y="368" class="lbl"></text>
+  <path d="M830 314 V384 H1010 V314" class="ln"/>
+  <text x="840" y="400" class="lbl">eligibility (suspended?)  ⇄  roster</text>
+  
+  <text x="307" y="335" class="s">/internal/*: direct Lambda invoke (IAM) + x-internal-key</text>
+  <text x="307" y="351" class="s">(per-service key in Secrets Manager)</text>
+
+  <!-- Events -->
+  <rect x="305" y="420" width="790" height="115" class="box" fill="#fffbeb"/>
+  <text x="320" y="443" class="t">Amazon EventBridge bus gym-events  →  Amazon SQS queues (+ dead-letter queues)</text>
+  <text x="320" y="465" class="s">ClassCancelled / Rescheduled / CapacityChanged → gym-booking-events → Booking cancels/updates bookings, promotes waitlist</text>
+  <text x="320" y="484" class="s">BookingLateCancelled  →  gym-attendance-events  →  Attendance records a LATE_CANCEL strike</text>
+  <text x="320" y="503" class="s">SessionClosed  →  gym-class-events  →  Class marks the session COMPLETED      MemberSuspended  →  gym-notifications  →  email</text>
+  <text x="320" y="522" class="s">EventBridge schedule rate(15 min)  →  Attendance auto-close (no-show processing) · event archive 7 days for replay</text>
+  <path d="M560 312 L560 418" class="ev"/>
+  <path d="M740 418 L740 312" class="ev"/>
+  <path d="M960 312 L960 418" class="ev"/>
+
+  <!-- External -->
+  <rect x="1160" y="120" width="370" height="85" class="box" fill="#f5f3ff"/>
+  <text x="1175" y="145" class="t">External API: Nager.Date</text>
+  <text x="1175" y="165" class="s">date.nager.at/api/v3/PublicHolidays/{year}/EG</text>
+  <text x="1175" y="184" class="s">blocks classes on Egyptian public holidays (no key)</text>
+  <rect x="1160" y="225" width="370" height="85" class="box" fill="#f5f3ff"/>
+  <text x="1175" y="250" class="t">External API: Brevo transactional email</text>
+  <text x="1175" y="270" class="s">api.brevo.com/v3/smtp/email (api-key header)</text>
+  <text x="1175" y="289" class="s">promotion / cancellation / suspension emails</text>
+  <path d="M695 140 C860 70 1060 90 1158 150" class="ex"/>
+  <path d="M895 280 C1000 310 1080 285 1158 270" class="ex"/>
+
+  <!-- Security / config -->
+  <rect x="1160" y="335" width="370" height="200" class="box" fill="#fef2f2"/>
+  <text x="1175" y="360" class="t">Security &amp; configuration</text>
+  <text x="1175" y="382" class="s">IAM: one least-privilege role per Lambda</text>
+  <text x="1175" y="401" class="s">Secrets Manager: internal keys, Brevo API key</text>
+  <text x="1175" y="420" class="s">SSM Parameter Store: business-rule policies</text>
+  <text x="1175" y="439" class="s">KMS key alias/gym-reports (SSE-KMS on S3)</text>
+  <text x="1175" y="458" class="s">API Gateway throttling (burst 50, rate 25/s)</text>
+  <text x="1175" y="477" class="s">helmet headers, CORS allow-list, zod validation</text>
+  <text x="1175" y="496" class="s">append-only audit table (PutItem only)</text>
+  <path d="M1090 420 H1158" class="ln" marker-start="url(#a)"/>
+
+  <!-- Data -->
+  <rect x="290" y="590" width="820" height="260" rx="12" fill="none" stroke="#1d4ed8" stroke-dasharray="4 4"/>
+  <text x="305" y="838" font-weight="700" fill="#1d4ed8">Data layer — Amazon DynamoDB (on-demand, encryption at rest, PITR on core tables) + Amazon S3</text>
+  <rect x="305" y="625" width="190" height="180" class="box" fill="#eff6ff"/>
+  <text x="317" y="648" class="t">Identity / shared</text>
+  <text x="317" y="670" class="s">gym-users</text><text x="317" y="688" class="s">gym-login-throttle (TTL)</text><text x="317" y="706" class="s">gym-audit (append-only)</text>
+  <rect x="505" y="625" width="190" height="180" class="box" fill="#eff6ff"/>
+  <text x="517" y="648" class="t">Class tables</text>
+  <text x="517" y="670" class="s">gym-classes</text><text x="517" y="688" class="s">  GSI byTrainer, byStudio,</text><text x="517" y="706" class="s">  byStatus</text><text x="517" y="724" class="s">gym-studios</text>
+  <rect x="705" y="625" width="190" height="180" class="box" fill="#eff6ff"/>
+  <text x="717" y="648" class="t">Booking tables</text>
+  <text x="717" y="670" class="s">gym-bookings (byClass,</text><text x="717" y="688" class="s">  byMember)</text><text x="717" y="706" class="s">gym-class-seats</text><text x="717" y="724" class="s">gym-waitlist</text><text x="717" y="742" class="s">gym-notifications (TTL)</text>
+  <rect x="905" y="625" width="190" height="180" class="box" fill="#eff6ff"/>
+  <text x="917" y="648" class="t">Attendance tables</text>
+  <text x="917" y="670" class="s">gym-attendance (byMember)</text><text x="917" y="688" class="s">gym-attendance-sessions</text><text x="917" y="706" class="s">gym-strikes (TTL 30 d)</text><text x="917" y="724" class="s">gym-member-standing</text><text x="917" y="748" class="s">S3 gym-reports (SSE-KMS,</text><text x="917" y="766" class="s">  7-day lifecycle, presigned)</text>
+  
+  <path d="M400 535 V623" class="ln"/><path d="M600 535 V623" class="ln"/><path d="M800 535 V623" class="ln"/><path d="M1000 535 V623" class="ln"/>
+
+  <!-- Observability -->
+  <rect x="1160" y="590" width="370" height="230" class="box" fill="#f0fdf4"/>
+  <text x="1175" y="615" class="t">Logging &amp; monitoring — Amazon CloudWatch</text>
+  <text x="1175" y="637" class="s">Log groups /gym/&lt;service&gt; + /aws/lambda/gym-* (14 days)</text>
+  <text x="1175" y="656" class="s">Structured JSON logs, secrets redacted</text>
+  <text x="1175" y="675" class="s">Metric filters: AccessDenied, AuthFailures,</text>
+  <text x="1175" y="694" class="s">  ServerErrors, ValidationFailures, InternalAccessDenied</text>
+  <text x="1175" y="713" class="s">Custom metrics: BookingsCreated, CheckInFailures,</text>
+  <text x="1175" y="732" class="s">  NoShowsRecorded, MembersSuspended …</text>
+  <text x="1175" y="751" class="s">5 alarms → Amazon SNS topic gym-alerts</text>
+  <path d="M1090 700 H1158" class="ln"/>
+
+  <rect x="30" y="590" width="230" height="230" class="box"/>
+  <text x="45" y="615" class="t">Layer communication</text>
+  <text x="45" y="640" class="s">Browser → API Gateway:</text><text x="45" y="657" class="s">  HTTPS JSON + Bearer token</text>
+  <text x="45" y="680" class="s">API GW → Lambda: AWS_PROXY</text><text x="45" y="697" class="s">  (payload v2)</text>
+  <text x="45" y="720" class="s">Lambda → DynamoDB / S3:</text><text x="45" y="737" class="s">  AWS SDK v3, IAM role creds</text>
+  <text x="45" y="760" class="s">Service → service: internal</text><text x="45" y="777" class="s">  HTTP + events (EventBridge/SQS)</text>
+  <text x="45" y="800" class="s">Browser never reaches the DB</text>
+
+  <text x="30" y="885" font-weight="700" fill="#0f172a">AWS services used: S3 · Cognito · API Gateway (HTTP API) · Lambda · DynamoDB · EventBridge · SQS · SNS · Secrets Manager · SSM Parameter Store · KMS · IAM · CloudWatch Logs/Metrics/Alarms</text>
+  <text x="30" y="906" class="s">Per student (own component): Ahmed — API Gateway, Lambda, DynamoDB, EventBridge (producer), SQS (consumer), SSM · Amr — API Gateway, Lambda, DynamoDB transactions, SQS (+DLQ), Secrets Manager, EventBridge</text>
+  <text x="30" y="924" class="s">Khaled — API Gateway, Lambda, DynamoDB (TTL), S3 + KMS, EventBridge schedule, CloudWatch custom metrics &amp; alarms, Secrets Manager</text>
+</svg>

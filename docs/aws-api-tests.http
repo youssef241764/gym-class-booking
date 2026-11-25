@@ -1,0 +1,76 @@
+### Cloud API tests (Lab 7, Part 3) - open in VS Code with the "REST Client" extension
+### and click "Send Request" above each test.
+### 1. Put your four API URLs below (bash infra/deploy-backend.sh all prints them,
+###    or: source infra/gym-vars.sh && echo $IDENTITY_API_URL ...). No slash at the end.
+### 2. Put the e-mail/password of a demo member (infra/.generated/seed-credentials.txt).
+
+@identity = http://REPLACE.execute-api.localhost.floci.io:4566
+@classes = http://REPLACE.execute-api.localhost.floci.io:4566
+@bookings = http://REPLACE.execute-api.localhost.floci.io:4566
+@attendance = http://REPLACE.execute-api.localhost.floci.io:4566
+@memberEmail = ali.member@gym.local
+@memberPassword = PASTE-FROM-seed-credentials.txt
+
+### T1  Health: every API runs on Lambda  -> 200, "runtime":"lambda"
+GET {{identity}}/api/health
+
+###
+GET {{classes}}/api/health
+
+###
+GET {{bookings}}/api/health
+
+###
+GET {{attendance}}/api/health
+
+### T2  Sign in as a member -> 200 + accessToken (the next requests reuse it)
+# @name login
+POST {{identity}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "{{memberEmail}}", "password": "{{memberPassword}}" }
+
+###
+@token = {{login.response.body.$.accessToken}}
+
+### T3  Public timetable -> 200 + classes with live places
+GET {{classes}}/api/classes
+
+### T4  My bookings with the token -> 200
+GET {{bookings}}/api/bookings/mine
+Authorization: Bearer {{token}}
+
+### T5  Same request WITHOUT a token -> 401 UNAUTHENTICATED
+GET {{bookings}}/api/bookings/mine
+
+### T6  Invalid data -> 400 VALIDATION_FAILED (short name, bad e-mail, weak password, extra field)
+POST {{identity}}/api/auth/register
+Content-Type: application/json
+
+{ "name": "X", "email": "not-an-email", "password": "short", "role": "admin" }
+
+### T7  A member tries a trainer action -> 403 ROLE_NOT_ALLOWED
+POST {{classes}}/api/classes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "title": "Hacked class", "category": "yoga", "studioId": "5e2a7c1e-0000-4000-8000-000000000001", "startTime": "2030-01-01T08:00:00Z", "durationMin": 60, "capacity": 10 }
+
+### T8  A route that is not in API Gateway -> 404 {"message":"Not Found"} (Lambda never runs)
+DELETE {{identity}}/api/health
+
+### T9  Internal endpoint from outside -> 404 from API Gateway (only reachable Lambda-to-Lambda)
+POST {{bookings}}/internal/booking-counts
+Content-Type: application/json
+
+{ "classIds": [] }
+
+### T10 CORS from our website -> Access-Control-Allow-Origin: http://localhost:4566
+OPTIONS {{bookings}}/api/bookings
+Origin: http://localhost:4566
+Access-Control-Request-Method: POST
+
+### T11 CORS from another site -> NO Access-Control-Allow-Origin header
+OPTIONS {{bookings}}/api/bookings
+Origin: https://evil.example
+Access-Control-Request-Method: POST
