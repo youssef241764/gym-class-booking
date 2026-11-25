@@ -1,0 +1,43 @@
+### identity on your PC (Lab 4) - start it first:  cd services/identity && npm run dev
+### Open in VS Code with the REST Client extension and click "Send Request".
+### For requests that need a token: sign in with identity/requests.http first and paste the accessToken.
+
+@baseUrl = http://localhost:3001
+@token = PASTE-ACCESS-TOKEN-HERE
+
+### Health -> 200, runtime pc
+GET {{baseUrl}}/api/health
+
+### Register a member -> 201 (role is always member)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{ "name": "Laila Hassan", "email": "laila.{{$randomInt 1000 9999}}@example.com", "password": "StrongPass2026" }
+
+### Register with bad data and a "role" field -> 400 VALIDATION_FAILED
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{ "name": "X", "email": "nope", "password": "short", "role": "admin" }
+
+### Sign in -> 200 + accessToken (e-mail/password from infra/.generated/seed-credentials.txt)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "ali.member@gym.local", "password": "PASTE-FROM-seed-credentials.txt" }
+
+### Wrong password -> 401 with a generic message
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "ali.member@gym.local", "password": "WrongPassword1" }
+
+### My profile -> 200
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{token}}
+
+### Not JSON -> 415
+POST {{baseUrl}}/api/auth/login
+Content-Type: text/plain
+
+hello
