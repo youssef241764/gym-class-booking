@@ -1,0 +1,99 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Gym: stop old runs",
+      "type": "shell",
+      "command": "sh infra/local/stop-all.sh",
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "silent"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Gym: install packages (npm install everywhere)",
+      "type": "shell",
+      "command": "npm run install-all",
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Gym: preview emulator (no Docker)",
+      "type": "shell",
+      "command": "sh infra/local/start-emulator.sh",
+      "isBackground": true,
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": {
+        "owner": "gym",
+        "pattern": {
+          "regexp": "^__never__$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activesBegin": true,
+          "beginsPattern": "^(Installing|AWS emulator)",
+          "endsPattern": "AWS emulator \\(moto\\) running"
+        }
+      }
+    },
+    {
+      "label": "Gym: setup (create AWS resources + demo data)",
+      "type": "shell",
+      "command": "bash infra/setup-all.sh",
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Gym: run on my PC (services + website on :8080)",
+      "type": "shell",
+      "command": "npm run local",
+      "isBackground": true,
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": {
+        "owner": "gym",
+        "pattern": {
+          "regexp": "^__never__$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activesBegin": true,
+          "beginsPattern": "^",
+          "endsPattern": "Website: http"
+        }
+      }
+    },
+    {
+      "label": "Gym: preview - everything (stop old, install, emulator, setup, run)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Gym: stop old runs",
+        "Gym: install packages (npm install everywhere)",
+        "Gym: preview emulator (no Docker)",
+        "Gym: setup (create AWS resources + demo data)",
+        "Gym: run on my PC (services + website on :8080)"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}

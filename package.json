@@ -1,0 +1,28 @@
+{
+  "name": "gym-class-booking",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gym Class Booking System - Group 33, Cloud Computing and Cloud Security (26CSCN29H)",
+  "scripts": {
+    "preview": "sh infra/local/preview.sh",
+    "cloud": "bash infra/cloud-all.sh",
+    "install-all": "npm --prefix shared install && npm --prefix services/identity install && npm --prefix services/class-service install && npm --prefix services/booking-service install && npm --prefix services/attendance-service install && npm --prefix frontend install && npm --prefix tests install",
+    "floci:up": "docker compose -f infra/floci/docker-compose.yml up -d",
+    "floci:down": "docker compose -f infra/floci/docker-compose.yml down",
+    "emulator": "sh infra/local/start-emulator.sh",
+    "setup": "bash infra/setup-all.sh",
+    "deploy": "bash infra/deploy-backend.sh all && bash infra/deploy-frontend.sh",
+    "deploy:frontend": "bash infra/deploy-frontend.sh",
+    "check": "bash infra/check-deployment.sh",
+    "evidence:versions": "bash infra/evidence.sh versions",
+    "evidence:routes": "bash infra/evidence.sh routes",
+    "evidence:logs": "bash infra/evidence.sh logs",
+    "local": "node infra/local/run-all.mjs",
+    "test:integration": "node tests/integration.mjs",
+    "test:security": "node tests/security.mjs",
+    "test:security:floci": "GYM_TARGET=floci GYM_RESULTS_DIR=floci node tests/security.mjs",
+    "evidence:monitoring": "node tests/monitoring.mjs",
+    "test:e2e:floci": "GYM_TARGET=floci GYM_RESULTS_DIR=floci node tests/floci-e2e.mjs",
+    "test:e2e:floci:live": "GYM_TARGET=floci GYM_RESULTS_DIR=floci node tests/floci-e2e.mjs --live"
+  }
+}
