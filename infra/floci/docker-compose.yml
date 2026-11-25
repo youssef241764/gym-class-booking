@@ -1,0 +1,19 @@
+# Floci - free AWS emulator on your laptop (same as Labs 7 and 8).
+#   docker compose -f infra/floci/docker-compose.yml up -d
+# AWS endpoint:  http://localhost:4566
+# Floci Dash:    http://localhost:4566/_floci/ui   (Floci starts the dashboard by itself)
+services:
+  floci:
+    image: floci/floci:latest
+    container_name: floci
+    ports:
+      - "4566:4566"
+    environment:
+      FLOCI_DEFAULT_REGION: us-east-1
+      # keep tables, users and files after a restart
+      FLOCI_STORAGE_MODE: persistent
+    volumes:
+      # Lambda functions run as Docker containers, so Floci needs the Docker socket
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data
+    restart: unless-stopped

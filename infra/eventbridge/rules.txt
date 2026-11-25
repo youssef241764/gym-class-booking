@@ -1,0 +1,5 @@
+# EventBridge rules on bus gym-events: RULE_NAME TARGET_QUEUE (pattern in eventbridge/<RULE_NAME>.json)
+gym-class-to-booking gym-booking-events
+gym-booking-to-attendance gym-attendance-events
+gym-attendance-to-class gym-class-events
+gym-attendance-to-notifications gym-notifications

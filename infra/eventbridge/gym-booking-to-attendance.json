@@ -1,0 +1,8 @@
+{
+  "source": [
+    "gym.booking-service"
+  ],
+  "detail-type": [
+    "BookingLateCancelled"
+  ]
+}

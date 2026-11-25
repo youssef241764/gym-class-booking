@@ -1,0 +1,26 @@
+{
+  "TableName": "gym-login-throttle",
+  "BillingMode": "PAY_PER_REQUEST",
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "key",
+      "AttributeType": "S"
+    }
+  ],
+  "KeySchema": [
+    {
+      "AttributeName": "key",
+      "KeyType": "HASH"
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "project",
+      "Value": "gym-class-booking"
+    },
+    {
+      "Key": "owner",
+      "Value": "identity"
+    }
+  ]
+}

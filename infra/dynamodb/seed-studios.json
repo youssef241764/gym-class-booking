@@ -1,0 +1,76 @@
+{
+  "gym-studios": [
+    {
+      "PutRequest": {
+        "Item": {
+          "studioId": {
+            "S": "5e2a7c1e-0000-4000-8000-000000000001"
+          },
+          "name": {
+            "S": "Studio A"
+          },
+          "capacity": {
+            "N": "25"
+          },
+          "location": {
+            "S": "Ground floor"
+          },
+          "status": {
+            "S": "active"
+          },
+          "createdAt": {
+            "S": "2026-09-01T09:00:00.000Z"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "studioId": {
+            "S": "5e2a7c1e-0000-4000-8000-000000000002"
+          },
+          "name": {
+            "S": "Studio B"
+          },
+          "capacity": {
+            "N": "15"
+          },
+          "location": {
+            "S": "First floor"
+          },
+          "status": {
+            "S": "active"
+          },
+          "createdAt": {
+            "S": "2026-09-01T09:00:00.000Z"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "studioId": {
+            "S": "5e2a7c1e-0000-4000-8000-000000000003"
+          },
+          "name": {
+            "S": "Spin Room"
+          },
+          "capacity": {
+            "N": "20"
+          },
+          "location": {
+            "S": "First floor"
+          },
+          "status": {
+            "S": "active"
+          },
+          "createdAt": {
+            "S": "2026-09-01T09:00:00.000Z"
+          }
+        }
+      }
+    }
+  ]
+}

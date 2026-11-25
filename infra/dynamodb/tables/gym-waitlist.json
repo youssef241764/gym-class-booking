@@ -1,0 +1,56 @@
+{
+  "TableName": "gym-waitlist",
+  "BillingMode": "PAY_PER_REQUEST",
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "classId",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "memberId",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "joinedAt",
+      "AttributeType": "S"
+    }
+  ],
+  "KeySchema": [
+    {
+      "AttributeName": "classId",
+      "KeyType": "HASH"
+    },
+    {
+      "AttributeName": "memberId",
+      "KeyType": "RANGE"
+    }
+  ],
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "byMember",
+      "KeySchema": [
+        {
+          "AttributeName": "memberId",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "joinedAt",
+          "KeyType": "RANGE"
+        }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"
+      }
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "project",
+      "Value": "gym-class-booking"
+    },
+    {
+      "Key": "owner",
+      "Value": "booking-service"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "Rules": [
+    {
+      "ID": "expire-exports",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "reports/" },
+      "Expiration": { "Days": 7 },
+      "NoncurrentVersionExpiration": { "NoncurrentDays": 7 }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "source": [
+    "gym.class-service"
+  ],
+  "detail-type": [
+    "ClassCancelled",
+    "ClassRescheduled",
+    "ClassCapacityChanged"
+  ]
+}

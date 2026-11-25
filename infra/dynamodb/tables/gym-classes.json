@@ -1,0 +1,92 @@
+{
+  "TableName": "gym-classes",
+  "BillingMode": "PAY_PER_REQUEST",
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "classId",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "trainerId",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "startTime",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "studioId",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "status",
+      "AttributeType": "S"
+    }
+  ],
+  "KeySchema": [
+    {
+      "AttributeName": "classId",
+      "KeyType": "HASH"
+    }
+  ],
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "byTrainer",
+      "KeySchema": [
+        {
+          "AttributeName": "trainerId",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "startTime",
+          "KeyType": "RANGE"
+        }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"
+      }
+    },
+    {
+      "IndexName": "byStudio",
+      "KeySchema": [
+        {
+          "AttributeName": "studioId",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "startTime",
+          "KeyType": "RANGE"
+        }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"
+      }
+    },
+    {
+      "IndexName": "byStatus",
+      "KeySchema": [
+        {
+          "AttributeName": "status",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "startTime",
+          "KeyType": "RANGE"
+        }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"
+      }
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "project",
+      "Value": "gym-class-booking"
+    },
+    {
+      "Key": "owner",
+      "Value": "class-service"
+    }
+  ]
+}

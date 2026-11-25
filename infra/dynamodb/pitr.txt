@@ -1,0 +1,6 @@
+gym-classes
+gym-studios
+gym-bookings
+gym-class-seats
+gym-attendance
+gym-member-standing

@@ -1,0 +1,26 @@
+{
+  "TableName": "gym-studios",
+  "BillingMode": "PAY_PER_REQUEST",
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "studioId",
+      "AttributeType": "S"
+    }
+  ],
+  "KeySchema": [
+    {
+      "AttributeName": "studioId",
+      "KeyType": "HASH"
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "project",
+      "Value": "gym-class-booking"
+    },
+    {
+      "Key": "owner",
+      "Value": "class-service"
+    }
+  ]
+}

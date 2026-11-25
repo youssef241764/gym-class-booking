@@ -1,0 +1,8 @@
+# Demo users created by infra/services/09-seed.sh  (EMAIL ROLE NAME)
+# Passwords are generated on first run and saved in infra/.generated/seed-credentials.txt (git-ignored).
+admin@gym.local admin Mona Admin
+sara.trainer@gym.local trainer Sara Trainer
+omar.trainer@gym.local trainer Omar Trainer
+ali.member@gym.local member Ali Member
+nour.member@gym.local member Nour Member
+hana.member@gym.local member Hana Member

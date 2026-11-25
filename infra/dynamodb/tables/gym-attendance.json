@@ -1,0 +1,56 @@
+{
+  "TableName": "gym-attendance",
+  "BillingMode": "PAY_PER_REQUEST",
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "classId",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "memberId",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "recordedAt",
+      "AttributeType": "S"
+    }
+  ],
+  "KeySchema": [
+    {
+      "AttributeName": "classId",
+      "KeyType": "HASH"
+    },
+    {
+      "AttributeName": "memberId",
+      "KeyType": "RANGE"
+    }
+  ],
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "byMember",
+      "KeySchema": [
+        {
+          "AttributeName": "memberId",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "recordedAt",
+          "KeyType": "RANGE"
+        }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"
+      }
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "project",
+      "Value": "gym-class-booking"
+    },
+    {
+      "Key": "owner",
+      "Value": "attendance-service"
+    }
+  ]
+}
