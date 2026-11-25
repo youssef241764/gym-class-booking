@@ -1,0 +1,16 @@
+{
+  "name": "gym-tests",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Integration, security and monitoring-evidence scripts",
+  "scripts": {
+    "integration": "node integration.mjs",
+    "security": "node security.mjs",
+    "monitoring": "node monitoring.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.700.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.700.0"
+  }
+}

@@ -1,0 +1,536 @@
+{
+  "target": "Lambda handler (lambda.js) behind the API Gateway test harness, AWS emulator",
+  "rows": [
+    {
+      "id": "INT-01",
+      "scenario": "Register a new member account",
+      "expected": "201, role member",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"user\":{\"id\":\"df82decf-c7a3-4997-bc31-7636734c6b5c\",\"name\":\"Test Member\",\"email\":\"tester.1795618153394@gym.local\",\"role\":\"member\"}}"
+    },
+    {
+      "id": "INT-02",
+      "scenario": "Register the same email again",
+      "expected": "409 EMAIL_IN_USE",
+      "actual": "409 EMAIL_IN_USE",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"EMAIL_IN_USE\",\"message\":\"An account with this email already exists\",\"requestId\":\"gw-1795618153440\"}}"
+    },
+    {
+      "id": "INT-03",
+      "scenario": "Login with the new account",
+      "expected": "200 + access token",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"accessToken\":\"eyJ0eXAiOiJKV1QiLCJraWQiOiJkdW1teSIsImFsZyI6IlJTMjU2In0.eyJpc3MiOiJodHRwczovL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tL3VzLWVhc3QtMV84MTc5MTA0OTIzODQ0NWJhOTdlMThjNzE1YzM4OWY1MCIsInN1YiI6ImRmODJkZWNmLWM3YTMtNDk5Ny1iYzMxLTc2MzY3MzRjNmI1YyIsImNsaWVudF9pZCI6ImIwMWRiMjI1MjVkYzQ1YWRhYWJmZjBlYjdhIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwiaWF0IjoxNzk1NjE4MTUzLCJhdXRoX3RpbWUiOjE3OTU2MTgxNTMsImV4"
+    },
+    {
+      "id": "INT-04",
+      "scenario": "Trainer creates and publishes a class (capacity 2)",
+      "expected": "201 PUBLISHED",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"title\":\"Morning Yoga\",\"category\":\"yoga\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio B\",\"startTime\":\"2026-11-28T08:00:00.000Z\",\"endTime\":\"2026-11-28T09:00:00.000Z\",\"durationMin\":60,\"capacity\":2,\"status\":\"PUBLISHED\",\"availability\":null,\"trainerId\":\"ba807e00-5b22-4acf-8f5c-2c29efa9f728\",\"studioId\":\"5e2a7c1e-0000-4000-8000-000000000002\""
+    },
+    {
+      "id": "INT-05",
+      "scenario": "Second class in the same studio at an overlapping time",
+      "expected": "409 R6_STUDIO_CLASH",
+      "actual": "409 SCHEDULING_RULES_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SCHEDULING_RULES_FAILED\",\"message\":\"Studio is already booked at this time\",\"details\":[{\"rule\":\"R6_STUDIO_CLASH\",\"message\":\"Studio is already booked at this time\",\"details\":[{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"title\":\"Morning Yoga\",\"startTime\":\"2026-11-28T08:00:00.000Z\"}]}],\"requestId\":\"gw-1795618153599\"}}"
+    },
+    {
+      "id": "INT-06",
+      "scenario": "Same trainer, 5 minutes after her class ends (10-min changeover)",
+      "expected": "409 R5_TRAINER_CLASH",
+      "actual": "409 SCHEDULING_RULES_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SCHEDULING_RULES_FAILED\",\"message\":\"Trainer already has a session at this time\",\"details\":[{\"rule\":\"R5_TRAINER_CLASH\",\"message\":\"Trainer already has a session at this time\",\"details\":[{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"title\":\"Morning Yoga\",\"startTime\":\"2026-11-28T08:00:00.000Z\"}]}],\"requestId\":\"gw-1795618153629\"}}"
+    },
+    {
+      "id": "INT-07",
+      "scenario": "Class on a public holiday (Nager.Date API)",
+      "expected": "409 R7_HOLIDAY",
+      "actual": "409 SCHEDULING_RULES_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SCHEDULING_RULES_FAILED\",\"message\":\"2026-11-30 is a public holiday (Test Holiday); the gym is closed\",\"details\":[{\"rule\":\"R7_HOLIDAY\",\"message\":\"2026-11-30 is a public holiday (Test Holiday); the gym is closed\"}],\"requestId\":\"gw-1795618153650\"}}"
+    },
+    {
+      "id": "INT-08",
+      "scenario": "Admin overrides the holiday rule",
+      "expected": "201 holidayCheck HOLIDAY_OVERRIDDEN",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"911b5403-de9f-4c25-a573-835d65e557e8\",\"title\":\"Holiday Spin\",\"category\":\"spinning\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Spin Room\",\"startTime\":\"2026-11-30T10:00:00.000Z\",\"endTime\":\"2026-11-30T10:45:00.000Z\",\"durationMin\":45,\"capacity\":10,\"status\":\"DRAFT\",\"availability\":null,\"trainerId\":\"ba807e00-5b22-4acf-8f5c-2c29efa9f728\",\"studioId\":\"5e2a7c1e-0000-4000-8000-00000000000"
+    },
+    {
+      "id": "INT-09",
+      "scenario": "Class that ends after closing time (23:00)",
+      "expected": "409 R3_OPENING_HOURS",
+      "actual": "409 SCHEDULING_RULES_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SCHEDULING_RULES_FAILED\",\"message\":\"Sessions must run between 6:00 and 23:00 (Africa/Cairo)\",\"details\":[{\"rule\":\"R3_OPENING_HOURS\",\"message\":\"Sessions must run between 6:00 and 23:00 (Africa/Cairo)\"}],\"requestId\":\"gw-1795618153698\"}}"
+    },
+    {
+      "id": "INT-10",
+      "scenario": "Capacity larger than the studio (Studio B = 15)",
+      "expected": "409 R4_CAPACITY",
+      "actual": "409 SCHEDULING_RULES_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SCHEDULING_RULES_FAILED\",\"message\":\"Capacity cannot exceed 15 for Studio B\",\"details\":[{\"rule\":\"R4_CAPACITY\",\"message\":\"Capacity cannot exceed 15 for Studio B\"}],\"requestId\":\"gw-1795618153718\"}}"
+    },
+    {
+      "id": "INT-11",
+      "scenario": "Recurring series (7 days), holiday date skipped",
+      "expected": "201 created + skipped list",
+      "actual": "201",
+      "pass": true,
+      "note": "created 6, skipped 1",
+      "evidence": "{\"seriesId\":\"9d13c68a-6573-4de9-8542-6ca7fecd9bd5\",\"created\":[{\"classId\":\"53d3ec43-a289-4208-bbd8-43b8ffbe148b\",\"title\":\"Evening Spin\",\"category\":\"spinning\",\"trainerName\":\"Omar Trainer\",\"studioName\":\"Spin Room\",\"startTime\":\"2026-11-28T16:00:00.000Z\",\"endTime\":\"2026-11-28T16:45:00.000Z\",\"durationMin\":45,\"capacity\":12,\"status\":\"DRAFT\",\"availability\":null,\"trainerId\":\"eef77d51-24ba-441d-b70b-fb50e274"
+    },
+    {
+      "id": "INT-12",
+      "scenario": "Member books a place",
+      "expected": "201 CONFIRMED",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"booking\":{\"bookingId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec#e5845bb0-3bb4-404c-b72f-fdc630c34314\",\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"memberId\":\"e5845bb0-3bb4-404c-b72f-fdc630c34314\",\"memberName\":\"Ali Member\",\"classTitle\":\"Morning Yoga\",\"classStart\":\"2026-11-28T08:00:00.000Z\",\"classEnd\":\"2026-11-28T09:00:00.000Z\",\"status\":\"CONFIRMED\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-25T14:49:"
+    },
+    {
+      "id": "INT-13",
+      "scenario": "Second member takes the last place",
+      "expected": "201",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"booking\":{\"bookingId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec#99e0a157-223a-4681-8c0d-832f981f2380\",\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"memberId\":\"99e0a157-223a-4681-8c0d-832f981f2380\",\"memberName\":\"Nour Member\",\"classTitle\":\"Morning Yoga\",\"classStart\":\"2026-11-28T08:00:00.000Z\",\"classEnd\":\"2026-11-28T09:00:00.000Z\",\"status\":\"CONFIRMED\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-25T14:49"
+    },
+    {
+      "id": "INT-14",
+      "scenario": "Third member tries to book the full class",
+      "expected": "409 CLASS_FULL",
+      "actual": "409 CLASS_FULL",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"CLASS_FULL\",\"message\":\"This class is full. You can join the waitlist.\",\"details\":{\"capacity\":2,\"waitlistCount\":0},\"requestId\":\"gw-1795618154100\"}}"
+    },
+    {
+      "id": "INT-15",
+      "scenario": "Third member joins the waitlist",
+      "expected": "201 position 1",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"entry\":{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"memberId\":\"29f792f2-19fa-4d5c-90f6-ce8044104f61\",\"joinedAt\":\"2026-11-25T14:49:14.212Z\",\"classTitle\":\"Morning Yoga\",\"classStart\":\"2026-11-28T08:00:00.000Z\",\"position\":1}}"
+    },
+    {
+      "id": "INT-16",
+      "scenario": "Member books the same class twice",
+      "expected": "409 ALREADY_BOOKED",
+      "actual": "409 ALREADY_BOOKED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ALREADY_BOOKED\",\"message\":\"You already have a place in this class\",\"requestId\":\"gw-1795618154237\"}}"
+    },
+    {
+      "id": "INT-17",
+      "scenario": "Booked member tries to join the waitlist",
+      "expected": "409 ALREADY_BOOKED",
+      "actual": "409 ALREADY_BOOKED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ALREADY_BOOKED\",\"message\":\"You already have a place in this class\",\"requestId\":\"gw-1795618154283\"}}"
+    },
+    {
+      "id": "INT-18",
+      "scenario": "Three simultaneous bookings for one remaining seat",
+      "expected": "exactly one 201, others 409",
+      "actual": "one winner",
+      "pass": true,
+      "note": "",
+      "evidence": "[201,409,409]"
+    },
+    {
+      "id": "INT-19",
+      "scenario": "Public timetable shows live availability from Booking",
+      "expected": "200, booked 2 / capacity 2, no trainerId exposed",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"classes\":[{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"title\":\"Morning Yoga\",\"category\":\"yoga\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio B\",\"startTime\":\"2026-11-28T08:00:00.000Z\",\"endTime\":\"2026-11-28T09:00:00.000Z\",\"durationMin\":60,\"capacity\":2,\"status\":\"PUBLISHED\",\"availability\":{\"booked\":2,\"waitlist\":1}}],\"from\":\"2026-11-28T07:00:00.000Z\",\"to\":\"2026-11-28T09:00:00.000Z\"}"
+    },
+    {
+      "id": "INT-20",
+      "scenario": "Reduce capacity below confirmed bookings (asks Booking)",
+      "expected": "409 CAPACITY_BELOW_BOOKINGS",
+      "actual": "409 CAPACITY_BELOW_BOOKINGS",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"CAPACITY_BELOW_BOOKINGS\",\"message\":\"2 members are already booked; capacity cannot be lower\",\"requestId\":\"gw-1795618154555\"}}"
+    },
+    {
+      "id": "INT-21",
+      "scenario": "Increase capacity to 3",
+      "expected": "200, ClassCapacityChanged event",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"title\":\"Morning Yoga\",\"category\":\"yoga\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio B\",\"startTime\":\"2026-11-28T08:00:00.000Z\",\"endTime\":\"2026-11-28T09:00:00.000Z\",\"durationMin\":60,\"capacity\":3,\"status\":\"PUBLISHED\",\"availability\":null,\"trainerId\":\"ba807e00-5b22-4acf-8f5c-2c29efa9f728\",\"studioId\":\"5e2a7c1e-0000-4000-8000-000000000002\""
+    },
+    {
+      "id": "INT-22",
+      "scenario": "Waitlisted member is promoted automatically (event-driven)",
+      "expected": "booking source WAITLIST",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"bookings\":[{\"bookingId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec#29f792f2-19fa-4d5c-90f6-ce8044104f61\",\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"memberId\":\"29f792f2-19fa-4d5c-90f6-ce8044104f61\",\"memberName\":\"Hana Member\",\"classTitle\":\"Morning Yoga\",\"classStart\":\"2026-11-28T08:00:00.000Z\",\"classEnd\":\"2026-11-28T09:00:00.000Z\",\"status\":\"CONFIRMED\",\"source\":\"WAITLIST\",\"createdAt\":\"2026-11-25T1"
+    },
+    {
+      "id": "INT-23",
+      "scenario": "Promoted member gets an in-app notification + Brevo email",
+      "expected": "WAITLIST_PROMOTED, emailStatus SENT",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"notifications\":[{\"kind\":\"WAITLIST_PROMOTED\",\"title\":\"You got a place!\",\"message\":\"A place opened in Morning Yoga on 28 Nov 2026, 10:00 and it is now booked for you. Cancel from \\\"My bookings\\\" if you can no longer attend.\",\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"emailStatus\":\"SENT\",\"createdAt\":\"2026-11-25T14:49:15.923Z\"}]}"
+    },
+    {
+      "id": "INT-24",
+      "scenario": "Class full again (3/3): new member joins the waitlist",
+      "expected": "201 position 1",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"entry\":{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"memberId\":\"df82decf-c7a3-4997-bc31-7636734c6b5c\",\"joinedAt\":\"2026-11-25T14:49:16.832Z\",\"classTitle\":\"Morning Yoga\",\"classStart\":\"2026-11-28T08:00:00.000Z\",\"position\":1}}"
+    },
+    {
+      "id": "INT-25",
+      "scenario": "Member tries to cancel someone else's booking (IDOR)",
+      "expected": "403 NOT_BOOKING_OWNER",
+      "actual": "403 NOT_BOOKING_OWNER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_BOOKING_OWNER\",\"message\":\"You can only access your own records\",\"requestId\":\"gw-1795618156861\"}}"
+    },
+    {
+      "id": "INT-26",
+      "scenario": "Member cancels own booking 3 days ahead -> seat goes to the waitlist",
+      "expected": "200 CANCELLED (not late), 1 promoted",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"booking\":{\"bookingId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec#e5845bb0-3bb4-404c-b72f-fdc630c34314\",\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"memberId\":\"e5845bb0-3bb4-404c-b72f-fdc630c34314\",\"memberName\":\"Ali Member\",\"classTitle\":\"Morning Yoga\",\"classStart\":\"2026-11-28T08:00:00.000Z\",\"classEnd\":\"2026-11-28T09:00:00.000Z\",\"status\":\"CANCELLED\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-25T14:49:"
+    },
+    {
+      "id": "INT-27",
+      "scenario": "Member cancels 1 hour before start",
+      "expected": "200 LATE_CANCELLED",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"booking\":{\"bookingId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec#99e0a157-223a-4681-8c0d-832f981f2380\",\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"memberId\":\"99e0a157-223a-4681-8c0d-832f981f2380\",\"memberName\":\"Nour Member\",\"classTitle\":\"Morning Yoga\",\"classStart\":\"2026-11-28T08:00:00.000Z\",\"classEnd\":\"2026-11-28T09:00:00.000Z\",\"status\":\"LATE_CANCELLED\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-25T"
+    },
+    {
+      "id": "INT-28",
+      "scenario": "Late cancellation becomes a strike in Attendance (event-driven)",
+      "expected": "LATE_CANCEL strike",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"memberId\":\"99e0a157-223a-4681-8c0d-832f981f2380\",\"strikes\":[{\"type\":\"LATE_CANCEL\",\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"at\":\"2026-11-28T07:00:00.320Z\",\"expiresOn\":\"2026-12-28T07:00:00.320Z\"}],\"strikeCount\":1,\"strikeLimit\":3,\"suspended\":false,\"suspendedUntil\":null,\"suspensionReason\":null}"
+    },
+    {
+      "id": "INT-29",
+      "scenario": "Check-in code before the window opens (15 min before)",
+      "expected": "409 ATTENDANCE_NOT_OPEN",
+      "actual": "409 ATTENDANCE_NOT_OPEN",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ATTENDANCE_NOT_OPEN\",\"message\":\"Attendance opens 15 minutes before the class\",\"details\":{\"opensAt\":\"2026-11-28T07:45:00.000Z\"},\"requestId\":\"gw-1795618157354\"}}"
+    },
+    {
+      "id": "INT-30",
+      "scenario": "Trainer who is not assigned to the class issues a code",
+      "expected": "403 NOT_ASSIGNED_TRAINER",
+      "actual": "403 NOT_ASSIGNED_TRAINER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_ASSIGNED_TRAINER\",\"message\":\"You can only access your own records\",\"requestId\":\"gw-1795618157675\"}}"
+    },
+    {
+      "id": "INT-31",
+      "scenario": "Assigned trainer issues a one-time check-in code",
+      "expected": "201 + 6-digit code",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"code\":\"789106\",\"expiresAt\":\"2026-11-28T08:00:00.344Z\"}"
+    },
+    {
+      "id": "INT-32",
+      "scenario": "Member enters a wrong code",
+      "expected": "400 INVALID_CHECKIN_CODE",
+      "actual": "400 INVALID_CHECKIN_CODE",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"INVALID_CHECKIN_CODE\",\"message\":\"Wrong code (4 attempts left)\",\"requestId\":\"gw-1795618157740\"}}"
+    },
+    {
+      "id": "INT-33",
+      "scenario": "Member checks in with the right code",
+      "expected": "201 PRESENT",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"attendance\":{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"status\":\"PRESENT\",\"recordedAt\":\"2026-11-28T07:50:00.452Z\"}}"
+    },
+    {
+      "id": "INT-34",
+      "scenario": "Member without a booking (cancelled) uses the code",
+      "expected": "403 NOT_BOOKED",
+      "actual": "403 NOT_BOOKED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_BOOKED\",\"message\":\"You do not have a confirmed booking for this class\",\"requestId\":\"gw-1795618157847\"}}"
+    },
+    {
+      "id": "INT-35",
+      "scenario": "Trainer marks a member who is not on the roster",
+      "expected": "400 NOT_BOOKED",
+      "actual": "400 NOT_BOOKED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_BOOKED\",\"message\":\"Some members do not have a confirmed booking for this class\",\"details\":[{\"field\":\"memberId\",\"message\":\"e5845bb0-3bb4-404c-b72f-fdc630c34314\"}],\"requestId\":\"gw-1795618157900\"}}"
+    },
+    {
+      "id": "INT-36",
+      "scenario": "Close the session before it ends",
+      "expected": "409 SESSION_NOT_ENDED",
+      "actual": "409 SESSION_NOT_ENDED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SESSION_NOT_ENDED\",\"message\":\"A session can only be closed after it ends\",\"requestId\":\"gw-1795618157939\"}}"
+    },
+    {
+      "id": "INT-37",
+      "scenario": "Attendance sheet merges the Booking roster with records",
+      "expected": "200, hana PRESENT, tester UNMARKED",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"title\":\"Morning Yoga\",\"startTime\":\"2026-11-28T08:00:00.000Z\",\"endTime\":\"2026-11-28T09:00:00.000Z\",\"status\":\"PUBLISHED\",\"capacity\":3},\"rows\":[{\"memberId\":\"29f792f2-19fa-4d5c-90f6-ce8044104f61\",\"memberName\":\"Hana Member\",\"bookingId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec#29f792f2-19fa-4d5c-90f6-ce8044104f61\",\"status\":\"PRESENT\",\"method\":\"CODE"
+    },
+    {
+      "id": "INT-38",
+      "scenario": "Close the session after it ends -> unmarked member becomes NO_SHOW",
+      "expected": "200 present 1, noShow 1",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"summary\":{\"booked\":2,\"present\":1,\"late\":0,\"excused\":0,\"noShow\":1}}"
+    },
+    {
+      "id": "INT-39",
+      "scenario": "Close the same session twice",
+      "expected": "409 SESSION_ALREADY_CLOSED",
+      "actual": "409 SESSION_ALREADY_CLOSED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SESSION_ALREADY_CLOSED\",\"message\":\"This session is already closed\",\"requestId\":\"gw-1795618158405\"}}"
+    },
+    {
+      "id": "INT-40",
+      "scenario": "Class service marks the class COMPLETED (SessionClosed event)",
+      "expected": "status COMPLETED",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"title\":\"Morning Yoga\",\"category\":\"yoga\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio B\",\"startTime\":\"2026-11-28T08:00:00.000Z\",\"endTime\":\"2026-11-28T09:00:00.000Z\",\"durationMin\":60,\"capacity\":3,\"status\":\"COMPLETED\",\"availability\":{\"booked\":2,\"waitlist\":0},\"trainerId\":\"ba807e00-5b22-4acf-8f5c-2c29efa9f728\",\"studioId\":\"5e2a7c1e-0000-40"
+    },
+    {
+      "id": "INT-41",
+      "scenario": "No-show member sees the strike on their reliability page",
+      "expected": "1 NO_SHOW strike",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"memberId\":\"df82decf-c7a3-4997-bc31-7636734c6b5c\",\"strikes\":[{\"type\":\"NO_SHOW\",\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"at\":\"2026-11-28T08:00:00.000Z\",\"expiresOn\":\"2026-12-28T08:00:00.000Z\"}],\"strikeCount\":1,\"strikeLimit\":3,\"suspended\":false,\"suspendedUntil\":null,\"suspensionReason\":null,\"attendanceRate\":0,\"history\":[{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"classStart\":\"2026-11-"
+    },
+    {
+      "id": "INT-42",
+      "scenario": "Third strike (1 no-show + 2 late cancels) suspends the member",
+      "expected": "suspended true, 3 strikes",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"memberId\":\"df82decf-c7a3-4997-bc31-7636734c6b5c\",\"strikes\":[{\"type\":\"LATE_CANCEL\",\"classId\":\"35a04ffd-482b-41c0-b82e-e7da42318839\",\"at\":\"2026-11-29T07:30:00.389Z\",\"expiresOn\":\"2026-12-29T07:30:00.389Z\"},{\"type\":\"LATE_CANCEL\",\"classId\":\"cc02efb1-5759-42c4-b4b1-106c267634cd\",\"at\":\"2026-11-29T07:30:00.533Z\",\"expiresOn\":\"2026-12-29T07:30:00.533Z\"},{\"type\":\"NO_SHOW\",\"classId\":\"63611eb7-5a0f-47b6-be0f"
+    },
+    {
+      "id": "INT-43",
+      "scenario": "Suspended member tries to book (Booking asks Attendance)",
+      "expected": "403 MEMBER_SUSPENDED",
+      "actual": "403 MEMBER_SUSPENDED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"MEMBER_SUSPENDED\",\"message\":\"Booking is suspended until 2026-12-06T07:30:01.452Z because of repeated no-shows/late cancellations\",\"requestId\":\"gw-1795618161235\"}}"
+    },
+    {
+      "id": "INT-44",
+      "scenario": "Suspension notification delivered (Attendance -> EventBridge -> Booking notifier)",
+      "expected": "MEMBER_SUSPENDED notification",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"notifications\":[{\"kind\":\"MEMBER_SUSPENDED\",\"title\":\"Booking paused\",\"message\":\"You reached 3 no-shows/late cancellations in 30 days, so new bookings are paused until 6 Dec 2026, 09:30.\",\"emailStatus\":\"SENT\",\"createdAt\":\"2026-11-29T07:30:02.361Z\"},{\"kind\":\"WAITLIST_PROMOTED\",\"title\":\"You got a place!\",\"message\":\"A place opened in Morning Yoga on 28 Nov 2026, 10:00 and it is now booked for you. Ca"
+    },
+    {
+      "id": "INT-45",
+      "scenario": "Trainer tries an admin-only correction",
+      "expected": "403 ROLE_NOT_ALLOWED",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: admin\",\"requestId\":\"gw-1795618162613\"}}"
+    },
+    {
+      "id": "INT-46",
+      "scenario": "Admin corrects NO_SHOW -> EXCUSED within 48 h",
+      "expected": "200 previousStatus NO_SHOW",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"attendance\":{\"classId\":\"63611eb7-5a0f-47b6-be0f-d4e139a24aec\",\"memberId\":\"df82decf-c7a3-4997-bc31-7636734c6b5c\",\"status\":\"EXCUSED\",\"previousStatus\":\"NO_SHOW\"}}"
+    },
+    {
+      "id": "INT-47",
+      "scenario": "Correction removes the strike and lifts the automatic suspension",
+      "expected": "2 strikes, suspended false",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"memberId\":\"df82decf-c7a3-4997-bc31-7636734c6b5c\",\"strikes\":[{\"type\":\"LATE_CANCEL\",\"classId\":\"35a04ffd-482b-41c0-b82e-e7da42318839\",\"at\":\"2026-11-29T07:30:00.389Z\",\"expiresOn\":\"2026-12-29T07:30:00.389Z\"},{\"type\":\"LATE_CANCEL\",\"classId\":\"cc02efb1-5759-42c4-b4b1-106c267634cd\",\"at\":\"2026-11-29T07:30:00.533Z\",\"expiresOn\":\"2026-12-29T07:30:00.533Z\"}],\"strikeCount\":2,\"strikeLimit\":3,\"suspended\":false,\""
+    },
+    {
+      "id": "INT-48",
+      "scenario": "Member can book again after the suspension is lifted",
+      "expected": "201",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"booking\":{\"bookingId\":\"e4bbb6e8-8adc-4aa2-9f49-2d11a8e5a48c#df82decf-c7a3-4997-bc31-7636734c6b5c\",\"classId\":\"e4bbb6e8-8adc-4aa2-9f49-2d11a8e5a48c\",\"memberId\":\"df82decf-c7a3-4997-bc31-7636734c6b5c\",\"memberName\":\"Test Member\",\"classTitle\":\"Strength C\",\"classStart\":\"2026-11-29T10:00:00.000Z\",\"classEnd\":\"2026-11-29T10:30:00.000Z\",\"status\":\"CONFIRMED\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-29T09:30:0"
+    },
+    {
+      "id": "INT-49",
+      "scenario": "Trainer report (own classes only) with fill / attendance / no-show rates",
+      "expected": "200, C1 attendanceRate 50%, only Sara's classes",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"from\":\"2026-11-26T22:00:00.000Z\",\"to\":\"2026-11-30T22:00:00.000Z\",\"trainerId\":\"ba807e00-5b22-4acf-8f5c-2c29efa9f728\",\"totals\":{\"sessions\":3,\"booked\":3,\"capacity\":23,\"closedSessions\":1,\"attended\":1,\"noShow\":0,\"avgFillRate\":13,\"attendanceRate\":50,\"noShowRate\":0},\"byCategory\":[{\"key\":\"yoga\",\"sessions\":1,\"booked\":2,\"avgFillRate\":66.7,\"attendanceRate\":50,\"noShowRate\":0},{\"key\":\"strength\",\"sessions\":2,"
+    },
+    {
+      "id": "INT-50",
+      "scenario": "Trainer requests another trainer's report",
+      "expected": "403 TRAINER_OWN_REPORTS_ONLY",
+      "actual": "403 TRAINER_OWN_REPORTS_ONLY",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"TRAINER_OWN_REPORTS_ONLY\",\"message\":\"You can only access your own records\",\"requestId\":\"gw-1795618163191\"}}"
+    },
+    {
+      "id": "INT-51",
+      "scenario": "Admin exports CSV (S3 SSE-KMS + 5-minute pre-signed URL)",
+      "expected": "201 + url",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"url\":\"http://localhost:4566/gym-reports/reports/0937506c-84cc-44f7-a9ca-d46a23a95d13/2026-11-25T14-49-23-286Z.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=proxy-injected%2F20261125%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261125T144923Z&X-Amz-Expires=300&X-Amz-Signature=dd8033f99259c26d1d03a70397c87ad6535bc393e4bf31bc2286a2db6ab9894b&X-Amz-Signe"
+    },
+    {
+      "id": "INT-52",
+      "scenario": "Download the exported CSV through the pre-signed URL",
+      "expected": "CSV with header row",
+      "actual": "CSV ok",
+      "pass": true,
+      "note": "",
+      "evidence": "\"startTime,title,category,trainerName,slot,capacity,booked,waitlist,fillRate,present,late,excused,noShow,attendanceRate,n\""
+    },
+    {
+      "id": "INT-53",
+      "scenario": "Trainer reschedules a booked class",
+      "expected": "200 new startTime",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"e4bbb6e8-8adc-4aa2-9f49-2d11a8e5a48c\",\"title\":\"Strength C\",\"category\":\"strength\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio A\",\"startTime\":\"2026-11-29T12:00:00.000Z\",\"endTime\":\"2026-11-29T12:30:00.000Z\",\"durationMin\":30,\"capacity\":10,\"status\":\"PUBLISHED\",\"availability\":null,\"trainerId\":\"ba807e00-5b22-4acf-8f5c-2c29efa9f728\",\"studioId\":\"5e2a7c1e-0000-4000-8000-0000000000"
+    },
+    {
+      "id": "INT-54",
+      "scenario": "Booked member notified of the new time (ClassRescheduled event)",
+      "expected": "CLASS_RESCHEDULED",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"notifications\":[{\"kind\":\"MEMBER_SUSPENDED\",\"title\":\"Booking paused\",\"message\":\"You reached 3 no-shows/late cancellations in 30 days, so new bookings are paused until 6 Dec 2026, 09:30.\",\"emailStatus\":\"SENT\",\"createdAt\":\"2026-11-29T07:30:02.361Z\"},{\"kind\":\"WAITLIST_PROMOTED\",\"title\":\"You got a place!\",\"message\":\"A place opened in Morning Yoga on 28 Nov 2026, 10:00 and it is now booked for you. Ca"
+    },
+    {
+      "id": "INT-55",
+      "scenario": "Trainer cancels the class",
+      "expected": "200 CANCELLED",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"e4bbb6e8-8adc-4aa2-9f49-2d11a8e5a48c\",\"title\":\"Strength C\",\"category\":\"strength\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio A\",\"startTime\":\"2026-11-29T12:00:00.000Z\",\"endTime\":\"2026-11-29T12:30:00.000Z\",\"durationMin\":30,\"capacity\":10,\"status\":\"CANCELLED\",\"availability\":null,\"trainerId\":\"ba807e00-5b22-4acf-8f5c-2c29efa9f728\",\"studioId\":\"5e2a7c1e-0000-4000-8000-0000000000"
+    },
+    {
+      "id": "INT-56",
+      "scenario": "Bookings are cancelled by the gym (ClassCancelled event)",
+      "expected": "CANCELLED_BY_GYM",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"bookings\":[{\"bookingId\":\"e4bbb6e8-8adc-4aa2-9f49-2d11a8e5a48c#df82decf-c7a3-4997-bc31-7636734c6b5c\",\"classId\":\"e4bbb6e8-8adc-4aa2-9f49-2d11a8e5a48c\",\"memberId\":\"df82decf-c7a3-4997-bc31-7636734c6b5c\",\"memberName\":\"Test Member\",\"classTitle\":\"Strength C\",\"classStart\":\"2026-11-29T12:00:00.000Z\",\"classEnd\":\"2026-11-29T12:30:00.000Z\",\"status\":\"CANCELLED_BY_GYM\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-2"
+    },
+    {
+      "id": "INT-57",
+      "scenario": "Booking a cancelled class",
+      "expected": "409 CLASS_NOT_BOOKABLE",
+      "actual": "409 CLASS_NOT_BOOKABLE",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"CLASS_NOT_BOOKABLE\",\"message\":\"This class is cancelled\",\"requestId\":\"gw-1795618165497\"}}"
+    },
+    {
+      "id": "INT-58",
+      "scenario": "Admin audit log shows actions from all services",
+      "expected": "CLASS_CREATED, BOOKING_CREATED, MEMBER_CHECKED_IN ...",
+      "actual": "200",
+      "pass": true,
+      "note": "CLASS_CANCELLED, CLASS_UPDATED, REPORT_EXPORTED, CLASS_CREATED, BOOKING_CANCELLED, WAITLIST_JOINED, BOOKING_CREATED, SERIES_CREATED, USER_REGISTERED",
+      "evidence": "{\"entries\":[{\"at\":\"2026-11-25T14:49:24.453Z\",\"service\":\"class-service\",\"action\":\"CLASS_CANCELLED\",\"outcome\":\"SUCCESS\",\"actorId\":\"ba807e00-5b22-4acf-8f5c-2c29efa9f728\",\"actorRole\":\"trainer\",\"targetType\":\"class\",\"targetId\":\"e4bbb6e8-8adc-4aa2-9f49-2d11a8e5a48c\",\"details\":{\"reason\":\"Trainer unwell\"}},{\"at\":\"2026-11-25T14:49:23.386Z\",\"service\":\"class-service\",\"action\":\"CLASS_UPDATED\",\"outcome\":\"SUCCES"
+    },
+    {
+      "id": "INT-59",
+      "scenario": "Emails sent through Brevo API with the key from Secrets Manager",
+      "expected": ">= 1 call with api-key header",
+      "actual": "5 calls",
+      "pass": true,
+      "note": "",
+      "evidence": "[{\"to\":[\"hana.member@gym.local\"],\"subject\":\"You got a place!\",\"keyPresent\":true,\"at\":\"2026-11-25T14:49:15.921Z\"},{\"to\":[\"tester.1795618153394@gym.local\"],\"subject\":\"You got a place!\",\"keyPresent\":true,\"at\":\"2026-11-25T14:49:17.945Z\"},{\"to\":[\"tester.1795618153394@gym.local\"],\"subject\":\"Booking paused\",\"keyPresent\":true,\"at\":\"2026-11-25T14:49:21.973Z\"}]"
+    }
+  ]
+}

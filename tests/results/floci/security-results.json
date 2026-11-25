@@ -1,0 +1,248 @@
+{
+  "target": "Lambda + API Gateway on Floci",
+  "rows": [
+    {
+      "id": "SEC-01",
+      "scenario": "Unauthenticated request to a protected endpoint (my bookings)",
+      "expected": "401 UNAUTHENTICATED",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Authentication required\",\"requestId\":\"df52da57-8e5a-4d2b-84e2-46c8f5a80faf\"}}"
+    },
+    {
+      "id": "SEC-02",
+      "scenario": "Unauthenticated request to reports",
+      "expected": "401",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Authentication required\",\"requestId\":\"1dc4db0d-bab4-489c-be99-2d1d6e7d3802\"}}"
+    },
+    {
+      "id": "SEC-03",
+      "scenario": "Member edits their JWT to add the 'admin' group (signature no longer valid)",
+      "expected": "401 invalid token",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Invalid or expired token\",\"requestId\":\"4214c1f2-d65c-444a-b43c-fe2ce98c7b12\"}}"
+    },
+    {
+      "id": "SEC-04",
+      "scenario": "Unsigned token with alg 'none'",
+      "expected": "401",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Invalid or expired token\",\"requestId\":\"5b100b3a-98cc-42d0-a43b-df4d65c701bb\"}}"
+    },
+    {
+      "id": "SEC-05",
+      "scenario": "Member tries to create a class (trainer/admin only)",
+      "expected": "403 ROLE_NOT_ALLOWED",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: trainer or admin\",\"requestId\":\"bcf93625-3847-40b3-ba3c-3f8538d23a7f\"}}"
+    },
+    {
+      "id": "SEC-06",
+      "scenario": "Trainer tries to make a member an admin",
+      "expected": "403 ROLE_NOT_ALLOWED",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: admin\",\"requestId\":\"890126da-fcc5-443f-b967-71bb7c05603f\"}}"
+    },
+    {
+      "id": "SEC-07",
+      "scenario": "Trainer tries to read the audit log (admin only)",
+      "expected": "403",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: admin\",\"requestId\":\"68c42046-cc3d-4dce-b950-efe4a3cb96b5\"}}"
+    },
+    {
+      "id": "SEC-08",
+      "scenario": "Member cancels another member's booking by changing the ID (IDOR)",
+      "expected": "403 NOT_BOOKING_OWNER",
+      "actual": "403 NOT_BOOKING_OWNER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_BOOKING_OWNER\",\"message\":\"You can only access your own records\",\"requestId\":\"9fd47223-eb8f-44b6-ae8e-cee72ad14d49\"}}"
+    },
+    {
+      "id": "SEC-09",
+      "scenario": "Trainer edits another trainer's class",
+      "expected": "403 NOT_ASSIGNED_TRAINER",
+      "actual": "403 NOT_ASSIGNED_TRAINER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_ASSIGNED_TRAINER\",\"message\":\"You can only access your own records\",\"requestId\":\"4726ef24-a932-4c64-860b-cf4614f2d367\"}}"
+    },
+    {
+      "id": "SEC-10",
+      "scenario": "Trainer reads the roster of another trainer's class",
+      "expected": "403",
+      "actual": "403 NOT_ASSIGNED_TRAINER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_ASSIGNED_TRAINER\",\"message\":\"You can only access your own records\",\"requestId\":\"7877529d-a83f-4190-9341-23c776fc55bc\"}}"
+    },
+    {
+      "id": "SEC-11",
+      "scenario": "Trainer schedules a class in another trainer's name",
+      "expected": "403 TRAINER_CAN_ONLY_SCHEDULE_SELF",
+      "actual": "403 TRAINER_CAN_ONLY_SCHEDULE_SELF",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"TRAINER_CAN_ONLY_SCHEDULE_SELF\",\"message\":\"You can only access your own records\",\"requestId\":\"07b9ae22-bdcc-499f-9202-69b2b21b71f9\"}}"
+    },
+    {
+      "id": "SEC-12",
+      "scenario": "Invalid class fields (short title, bad date, negative duration, zero capacity)",
+      "expected": "400 VALIDATION_FAILED",
+      "actual": "400 VALIDATION_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"VALIDATION_FAILED\",\"message\":\"Request validation failed\",\"details\":[{\"field\":\"title\",\"message\":\"String must contain at least 3 character(s)\"},{\"field\":\"durationMin\",\"message\":\"Number must be greater than or equal to 5\"},{\"field\":\"capacity\",\"message\":\"Number must be greater than or equal to 1\"},{\"field\":\"startTime\",\"message\":\"Invalid datetime\"}],\"requestId\":\"8dc1a085-7b0e-4e28-939"
+    },
+    {
+      "id": "SEC-13",
+      "scenario": "Self-registration with an extra field role='admin' (mass assignment)",
+      "expected": "400 (unknown field rejected)",
+      "actual": "400 VALIDATION_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"VALIDATION_FAILED\",\"message\":\"Request validation failed\",\"details\":[{\"field\":\"body\",\"message\":\"Unrecognized key(s) in object: 'role'\"}],\"requestId\":\"89fb06a4-2f0d-4181-a968-eba72de2faeb\"}}"
+    },
+    {
+      "id": "SEC-14",
+      "scenario": "Malformed JSON body",
+      "expected": "400 MALFORMED_JSON",
+      "actual": "400 MALFORMED_JSON",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"MALFORMED_JSON\",\"message\":\"Request body is not valid JSON\",\"requestId\":\"653bdb0c-1ee8-42e0-a767-0587f6e09146\"}}"
+    },
+    {
+      "id": "SEC-15",
+      "scenario": "Unsupported content type (text/plain)",
+      "expected": "415",
+      "actual": "415 UNSUPPORTED_MEDIA_TYPE",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNSUPPORTED_MEDIA_TYPE\",\"message\":\"Content-Type must be application/json\",\"requestId\":\"29924eb6-aec8-4329-bd64-6c27e03a7193\"}}"
+    },
+    {
+      "id": "SEC-16",
+      "scenario": "Injection-style value in a path parameter",
+      "expected": "400 VALIDATION_FAILED",
+      "actual": "400 VALIDATION_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"VALIDATION_FAILED\",\"message\":\"Request validation failed\",\"details\":[{\"field\":\"id\",\"message\":\"Invalid uuid\"}],\"requestId\":\"8d26aee2-073d-401b-aff1-fd70eb8320f0\"}}"
+    },
+    {
+      "id": "SEC-17",
+      "scenario": "Weak password at registration",
+      "expected": "400",
+      "actual": "400 VALIDATION_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"VALIDATION_FAILED\",\"message\":\"Request validation failed\",\"details\":[{\"field\":\"password\",\"message\":\"String must contain at least 10 character(s)\"},{\"field\":\"password\",\"message\":\"must contain an uppercase letter\"},{\"field\":\"password\",\"message\":\"must contain a digit\"}],\"requestId\":\"9ce95a30-e7ce-4f7c-a35f-e50078a1d337\"}}"
+    },
+    {
+      "id": "SEC-18",
+      "scenario": "Browser/attacker calls an internal endpoint without the service key",
+      "expected": "403 INTERNAL_ONLY (PC) / 404 no route (API Gateway)",
+      "actual": "404",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"message\":\"Not Found\"}"
+    },
+    {
+      "id": "SEC-19",
+      "scenario": "Internal endpoint with a guessed service key",
+      "expected": "403 (PC) / 404 no route (API Gateway)",
+      "actual": "404",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"message\":\"Not Found\"}"
+    },
+    {
+      "id": "SEC-20",
+      "scenario": "Six wrong passwords for one account",
+      "expected": "five 401 then 429 (temporary cool-down)",
+      "actual": "401,401,401,401,401,429",
+      "pass": true,
+      "note": "",
+      "evidence": "[401,401,401,401,401,429]"
+    },
+    {
+      "id": "SEC-21",
+      "scenario": "Login error does not reveal whether the email exists",
+      "expected": "401 same generic message",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Invalid email or password\",\"requestId\":\"ece8ce08-5565-453c-b25b-840a8957f291\"}}"
+    },
+    {
+      "id": "SEC-22",
+      "scenario": "Cross-origin request from an unknown site",
+      "expected": "no Access-Control-Allow-Origin header",
+      "actual": "header absent",
+      "pass": true,
+      "note": "",
+      "evidence": ""
+    },
+    {
+      "id": "SEC-23",
+      "scenario": "Anonymous class view hides internal fields",
+      "expected": "no trainerId / createdBy / version",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"191c839c-2def-49c2-9454-9a6eec95a696\",\"title\":\"Security Test Class\",\"category\":\"other\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Spin Room\",\"startTime\":\"2026-12-01T10:00:00.000Z\",\"endTime\":\"2026-12-01T10:30:00.000Z\",\"durationMin\":30,\"capacity\":5,\"status\":\"PUBLISHED\",\"availability\":{\"booked\":1,\"waitlist\":0}}}"
+    },
+    {
+      "id": "SEC-24",
+      "scenario": "Admin user list contains no password/hash/token fields",
+      "expected": "no sensitive fields",
+      "actual": "clean",
+      "pass": true,
+      "note": "",
+      "evidence": ""
+    },
+    {
+      "id": "SEC-25",
+      "scenario": "Secret exposure review: scan repository files for keys, passwords, tokens",
+      "expected": "0 findings; .env files git-ignored",
+      "actual": "0 findings",
+      "pass": true,
+      "note": "",
+      "evidence": "[]"
+    },
+    {
+      "id": "SEC-26",
+      "scenario": "Application logs contain no JWTs or passwords (CloudWatch Logs, 244334 chars scanned)",
+      "expected": "none found",
+      "actual": "clean",
+      "pass": true,
+      "note": "",
+      "evidence": ""
+    },
+    {
+      "id": "SEC-27",
+      "scenario": "310 quick requests from one IP (limit 300/min), faking X-Forwarded-For",
+      "expected": "some 429 RATE_LIMITED with Retry-After",
+      "actual": "297x200, 13x429",
+      "pass": true,
+      "note": "",
+      "evidence": ""
+    }
+  ]
+}

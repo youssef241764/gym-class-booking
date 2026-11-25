@@ -1,0 +1,248 @@
+{
+  "target": "Lambda handler (lambda.js) behind the API Gateway test harness, AWS emulator",
+  "rows": [
+    {
+      "id": "SEC-01",
+      "scenario": "Unauthenticated request to a protected endpoint (my bookings)",
+      "expected": "401 UNAUTHENTICATED",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Authentication required\",\"requestId\":\"gw-1795618165903\"}}"
+    },
+    {
+      "id": "SEC-02",
+      "scenario": "Unauthenticated request to reports",
+      "expected": "401",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Authentication required\",\"requestId\":\"gw-1795618165912\"}}"
+    },
+    {
+      "id": "SEC-03",
+      "scenario": "Member edits their JWT to add the 'admin' group (signature no longer valid)",
+      "expected": "401 invalid token",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Invalid or expired token\",\"requestId\":\"gw-1795618165922\"}}"
+    },
+    {
+      "id": "SEC-04",
+      "scenario": "Unsigned token with alg 'none'",
+      "expected": "401",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Invalid or expired token\",\"requestId\":\"gw-1795618165929\"}}"
+    },
+    {
+      "id": "SEC-05",
+      "scenario": "Member tries to create a class (trainer/admin only)",
+      "expected": "403 ROLE_NOT_ALLOWED",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: trainer or admin\",\"requestId\":\"gw-1795618165936\"}}"
+    },
+    {
+      "id": "SEC-06",
+      "scenario": "Trainer tries to make a member an admin",
+      "expected": "403 ROLE_NOT_ALLOWED",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: admin\",\"requestId\":\"gw-1795618165944\"}}"
+    },
+    {
+      "id": "SEC-07",
+      "scenario": "Trainer tries to read the audit log (admin only)",
+      "expected": "403",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: admin\",\"requestId\":\"gw-1795618165951\"}}"
+    },
+    {
+      "id": "SEC-08",
+      "scenario": "Member cancels another member's booking by changing the ID (IDOR)",
+      "expected": "403 NOT_BOOKING_OWNER",
+      "actual": "403 NOT_BOOKING_OWNER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_BOOKING_OWNER\",\"message\":\"You can only access your own records\",\"requestId\":\"gw-1795618165959\"}}"
+    },
+    {
+      "id": "SEC-09",
+      "scenario": "Trainer edits another trainer's class",
+      "expected": "403 NOT_ASSIGNED_TRAINER",
+      "actual": "403 NOT_ASSIGNED_TRAINER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_ASSIGNED_TRAINER\",\"message\":\"You can only access your own records\",\"requestId\":\"gw-1795618165973\"}}"
+    },
+    {
+      "id": "SEC-10",
+      "scenario": "Trainer reads the roster of another trainer's class",
+      "expected": "403",
+      "actual": "403 NOT_ASSIGNED_TRAINER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_ASSIGNED_TRAINER\",\"message\":\"You can only access your own records\",\"requestId\":\"gw-1795618165986\"}}"
+    },
+    {
+      "id": "SEC-11",
+      "scenario": "Trainer schedules a class in another trainer's name",
+      "expected": "403 TRAINER_CAN_ONLY_SCHEDULE_SELF",
+      "actual": "403 TRAINER_CAN_ONLY_SCHEDULE_SELF",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"TRAINER_CAN_ONLY_SCHEDULE_SELF\",\"message\":\"You can only access your own records\",\"requestId\":\"gw-1795618166003\"}}"
+    },
+    {
+      "id": "SEC-12",
+      "scenario": "Invalid class fields (short title, bad date, negative duration, zero capacity)",
+      "expected": "400 VALIDATION_FAILED",
+      "actual": "400 VALIDATION_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"VALIDATION_FAILED\",\"message\":\"Request validation failed\",\"details\":[{\"field\":\"title\",\"message\":\"String must contain at least 3 character(s)\"},{\"field\":\"durationMin\",\"message\":\"Number must be greater than or equal to 5\"},{\"field\":\"capacity\",\"message\":\"Number must be greater than or equal to 1\"},{\"field\":\"startTime\",\"message\":\"Invalid datetime\"}],\"requestId\":\"gw-1795618166010\"}}"
+    },
+    {
+      "id": "SEC-13",
+      "scenario": "Self-registration with an extra field role='admin' (mass assignment)",
+      "expected": "400 (unknown field rejected)",
+      "actual": "400 VALIDATION_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"VALIDATION_FAILED\",\"message\":\"Request validation failed\",\"details\":[{\"field\":\"body\",\"message\":\"Unrecognized key(s) in object: 'role'\"}],\"requestId\":\"gw-1795618166017\"}}"
+    },
+    {
+      "id": "SEC-14",
+      "scenario": "Malformed JSON body",
+      "expected": "400 MALFORMED_JSON",
+      "actual": "400 MALFORMED_JSON",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"MALFORMED_JSON\",\"message\":\"Request body is not valid JSON\",\"requestId\":\"gw-1795618166026\"}}"
+    },
+    {
+      "id": "SEC-15",
+      "scenario": "Unsupported content type (text/plain)",
+      "expected": "415",
+      "actual": "415 UNSUPPORTED_MEDIA_TYPE",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNSUPPORTED_MEDIA_TYPE\",\"message\":\"Content-Type must be application/json\",\"requestId\":\"gw-1795618166032\"}}"
+    },
+    {
+      "id": "SEC-16",
+      "scenario": "Injection-style value in a path parameter",
+      "expected": "400 VALIDATION_FAILED",
+      "actual": "400 VALIDATION_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"VALIDATION_FAILED\",\"message\":\"Request validation failed\",\"details\":[{\"field\":\"id\",\"message\":\"Invalid uuid\"}],\"requestId\":\"gw-1795618166037\"}}"
+    },
+    {
+      "id": "SEC-17",
+      "scenario": "Weak password at registration",
+      "expected": "400",
+      "actual": "400 VALIDATION_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"VALIDATION_FAILED\",\"message\":\"Request validation failed\",\"details\":[{\"field\":\"password\",\"message\":\"String must contain at least 10 character(s)\"},{\"field\":\"password\",\"message\":\"must contain an uppercase letter\"},{\"field\":\"password\",\"message\":\"must contain a digit\"}],\"requestId\":\"gw-1795618166044\"}}"
+    },
+    {
+      "id": "SEC-18",
+      "scenario": "Browser/attacker calls an internal endpoint without the service key",
+      "expected": "403 INTERNAL_ONLY",
+      "actual": "403 INTERNAL_ONLY",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"INTERNAL_ONLY\",\"message\":\"Internal endpoint\",\"requestId\":\"gw-1795618166049\"}}"
+    },
+    {
+      "id": "SEC-19",
+      "scenario": "Internal endpoint with a guessed service key",
+      "expected": "403",
+      "actual": "403 INTERNAL_ONLY",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"INTERNAL_ONLY\",\"message\":\"Internal endpoint\",\"requestId\":\"gw-1795618166055\"}}"
+    },
+    {
+      "id": "SEC-20",
+      "scenario": "Six wrong passwords for one account",
+      "expected": "five 401 then 429 (temporary cool-down)",
+      "actual": "401,401,401,401,401,429",
+      "pass": true,
+      "note": "",
+      "evidence": "[401,401,401,401,401,429]"
+    },
+    {
+      "id": "SEC-21",
+      "scenario": "Login error does not reveal whether the email exists",
+      "expected": "401 same generic message",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Invalid email or password\",\"requestId\":\"gw-1795618166210\"}}"
+    },
+    {
+      "id": "SEC-22",
+      "scenario": "Cross-origin request from an unknown site",
+      "expected": "no Access-Control-Allow-Origin header",
+      "actual": "header absent",
+      "pass": true,
+      "note": "",
+      "evidence": ""
+    },
+    {
+      "id": "SEC-23",
+      "scenario": "Anonymous class view hides internal fields",
+      "expected": "no trainerId / createdBy / version",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"ee3ec15c-4164-4eda-a207-05c21cdb17a3\",\"title\":\"Security Test Class\",\"category\":\"other\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Spin Room\",\"startTime\":\"2026-12-01T04:15:00.000Z\",\"endTime\":\"2026-12-01T04:45:00.000Z\",\"durationMin\":30,\"capacity\":5,\"status\":\"PUBLISHED\",\"availability\":{\"booked\":1,\"waitlist\":0}}}"
+    },
+    {
+      "id": "SEC-24",
+      "scenario": "Admin user list contains no password/hash/token fields",
+      "expected": "no sensitive fields",
+      "actual": "clean",
+      "pass": true,
+      "note": "",
+      "evidence": ""
+    },
+    {
+      "id": "SEC-25",
+      "scenario": "Secret exposure review: scan repository files for keys, passwords, tokens",
+      "expected": "0 findings; .env files git-ignored",
+      "actual": "0 findings",
+      "pass": true,
+      "note": "",
+      "evidence": "[]"
+    },
+    {
+      "id": "SEC-26",
+      "scenario": "Application logs contain no JWTs or passwords",
+      "expected": "none found",
+      "actual": "clean",
+      "pass": true,
+      "note": "",
+      "evidence": ""
+    },
+    {
+      "id": "SEC-27",
+      "scenario": "1010 quick requests from one IP (limit 1000/min), faking X-Forwarded-For",
+      "expected": "some 429 RATE_LIMITED with Retry-After",
+      "actual": "958x200, 52x429",
+      "pass": true,
+      "note": "",
+      "evidence": ""
+    }
+  ]
+}

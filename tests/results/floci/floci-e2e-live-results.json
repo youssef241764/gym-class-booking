@@ -1,0 +1,482 @@
+{
+  "target": "Lambda + API Gateway on Floci",
+  "rows": [
+    {
+      "id": "E2E-01",
+      "scenario": "Register a new member (identity Lambda -> Cognito + DynamoDB)",
+      "expected": "201 role member",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"user\":{\"id\":\"6be7038e-747a-4a09-902f-6a76a60c46d3\",\"name\":\"Mona Test\",\"email\":\"e2e.m1.1795628224637@gym.local\",\"role\":\"member\"}}"
+    },
+    {
+      "id": "E2E-02",
+      "scenario": "Register the same email again",
+      "expected": "409 EMAIL_IN_USE",
+      "actual": "409 EMAIL_IN_USE",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"EMAIL_IN_USE\",\"message\":\"An account with this email already exists\",\"requestId\":\"853790e5-bcc2-40a5-8410-b7073f2d7a26\"}}"
+    },
+    {
+      "id": "E2E-03",
+      "scenario": "Login with a wrong password",
+      "expected": "401",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Invalid email or password\",\"requestId\":\"ba615c66-520d-4c65-b9c3-86dea732f467\"}}"
+    },
+    {
+      "id": "E2E-04",
+      "scenario": "Login with the right password",
+      "expected": "200 + access token",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": ""
+    },
+    {
+      "id": "E2E-05",
+      "scenario": "Member tries to create a class",
+      "expected": "403 ROLE_NOT_ALLOWED",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: trainer or admin\",\"requestId\":\"b18c6a84-55b6-4af7-840b-65d2d251e5b5\"}}"
+    },
+    {
+      "id": "E2E-06",
+      "scenario": "Create a class without a token",
+      "expected": "401",
+      "actual": "401 UNAUTHENTICATED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"UNAUTHENTICATED\",\"message\":\"Authentication required\",\"requestId\":\"feeb69f1-aa99-456b-b25a-f480220f956e\"}}"
+    },
+    {
+      "id": "E2E-07",
+      "scenario": "Create a class with invalid fields",
+      "expected": "400 VALIDATION_FAILED",
+      "actual": "400 VALIDATION_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"VALIDATION_FAILED\",\"message\":\"Request validation failed\",\"details\":[{\"field\":\"title\",\"message\":\"String must contain at least 3 character(s)\"},{\"field\":\"durationMin\",\"message\":\"Number must be greater than or equal to 5\"},{\"field\":\"startTime\",\"message\":\"Invalid datetime\"}],\"requestId\":\"5e614ba6-d873-4eef-a46c-fa9ce88ae86e\"}}"
+    },
+    {
+      "id": "E2E-08",
+      "scenario": "Class starting in 5 minutes (30-minute lead time rule)",
+      "expected": "409 SCHEDULING_RULES_FAILED (R1)",
+      "actual": "409 SCHEDULING_RULES_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SCHEDULING_RULES_FAILED\",\"message\":\"Sessions must start at least 30 minutes from now\",\"details\":[{\"rule\":\"R1_LEAD_TIME\",\"message\":\"Sessions must start at least 30 minutes from now\"}],\"requestId\":\"20d4e914-6eaa-4cbd-9e51-dbb78f08a8b3\"}}"
+    },
+    {
+      "id": "E2E-09",
+      "scenario": "Trainer creates and publishes a class starting in ~32 minutes",
+      "expected": "201 PUBLISHED",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"title\":\"E2E Evening Yoga\",\"category\":\"yoga\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio A\",\"startTime\":\"2026-11-25T18:10:00.000Z\",\"endTime\":\"2026-11-25T18:40:00.000Z\",\"durationMin\":30,\"capacity\":2,\"status\":\"PUBLISHED\",\"availability\":null,\"trainerId\":\"bc1794b2-ff4c-4e39-a0f8-1b586a900ae3\",\"studioId\":\"5e2a7c1e-0000-4000-8000-000000000"
+    },
+    {
+      "id": "E2E-10",
+      "scenario": "Another class in the same studio at an overlapping time",
+      "expected": "409 SCHEDULING_RULES_FAILED (R6)",
+      "actual": "409 SCHEDULING_RULES_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SCHEDULING_RULES_FAILED\",\"message\":\"Studio is already booked at this time\",\"details\":[{\"rule\":\"R6_STUDIO_CLASH\",\"message\":\"Studio is already booked at this time\",\"details\":[{\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"title\":\"E2E Evening Yoga\",\"startTime\":\"2026-11-25T18:10:00.000Z\"}]}],\"requestId\":\"56e0e04e-3fd0-4f57-8078-c4338128fb65\"}}"
+    },
+    {
+      "id": "E2E-11",
+      "scenario": "Capacity larger than the studio",
+      "expected": "409 SCHEDULING_RULES_FAILED (R4)",
+      "actual": "409 SCHEDULING_RULES_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SCHEDULING_RULES_FAILED\",\"message\":\"Capacity cannot exceed 15 for Studio B\",\"details\":[{\"rule\":\"R4_CAPACITY\",\"message\":\"Capacity cannot exceed 15 for Studio B\"}],\"requestId\":\"e0faa44e-0641-46f2-bbe6-06851353bfc3\"}}"
+    },
+    {
+      "id": "E2E-12",
+      "scenario": "Member books a place (Booking asks Class: bookable? and Attendance: suspended?)",
+      "expected": "201 CONFIRMED",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"booking\":{\"bookingId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a#6be7038e-747a-4a09-902f-6a76a60c46d3\",\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"memberId\":\"6be7038e-747a-4a09-902f-6a76a60c46d3\",\"memberName\":\"Mona Test\",\"classTitle\":\"E2E Evening Yoga\",\"classStart\":\"2026-11-25T18:10:00.000Z\",\"classEnd\":\"2026-11-25T18:40:00.000Z\",\"status\":\"CONFIRMED\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-25T17:"
+    },
+    {
+      "id": "E2E-13",
+      "scenario": "Second member takes the last place",
+      "expected": "201",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"booking\":{\"bookingId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a#8d4d4c7b-d9e8-4b9d-95ab-5100891c5b88\",\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"memberId\":\"8d4d4c7b-d9e8-4b9d-95ab-5100891c5b88\",\"memberName\":\"Karim Test\",\"classTitle\":\"E2E Evening Yoga\",\"classStart\":\"2026-11-25T18:10:00.000Z\",\"classEnd\":\"2026-11-25T18:40:00.000Z\",\"status\":\"CONFIRMED\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-25T17"
+    },
+    {
+      "id": "E2E-14",
+      "scenario": "Third member tries to book the full class",
+      "expected": "409 CLASS_FULL",
+      "actual": "409 CLASS_FULL",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"CLASS_FULL\",\"message\":\"This class is full. You can join the waitlist.\",\"details\":{\"capacity\":2,\"waitlistCount\":0},\"requestId\":\"551bbcc5-addd-4a4d-8ddd-1c503834cd51\"}}"
+    },
+    {
+      "id": "E2E-15",
+      "scenario": "Third member joins the waitlist",
+      "expected": "201 position 1",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"entry\":{\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"memberId\":\"6506f17d-9b2b-4faa-9ad2-837b68972245\",\"joinedAt\":\"2026-11-25T17:37:05.246Z\",\"classTitle\":\"E2E Evening Yoga\",\"classStart\":\"2026-11-25T18:10:00.000Z\",\"position\":1}}"
+    },
+    {
+      "id": "E2E-16",
+      "scenario": "Member books the same class twice",
+      "expected": "409 ALREADY_BOOKED",
+      "actual": "409 ALREADY_BOOKED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ALREADY_BOOKED\",\"message\":\"You already have a place in this class\",\"requestId\":\"aa7de990-0b24-452c-bcb3-07c768971922\"}}"
+    },
+    {
+      "id": "E2E-17",
+      "scenario": "Booking with a malformed class id",
+      "expected": "400 VALIDATION_FAILED",
+      "actual": "400 VALIDATION_FAILED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"VALIDATION_FAILED\",\"message\":\"Request validation failed\",\"details\":[{\"field\":\"classId\",\"message\":\"Invalid uuid\"}],\"requestId\":\"de7f204b-2fd8-4e72-9c55-84c503ee8212\"}}"
+    },
+    {
+      "id": "E2E-18",
+      "scenario": "Member cancels someone else's booking (IDOR)",
+      "expected": "403 NOT_BOOKING_OWNER",
+      "actual": "403 NOT_BOOKING_OWNER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_BOOKING_OWNER\",\"message\":\"You can only access your own records\",\"requestId\":\"2f3d5054-a63b-49ae-8d97-b652079d7c09\"}}"
+    },
+    {
+      "id": "E2E-19",
+      "scenario": "Public timetable shows live availability from Booking (no trainerId exposed)",
+      "expected": "200 booked 2/2",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"classes\":[{\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"title\":\"E2E Evening Yoga\",\"category\":\"yoga\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio A\",\"startTime\":\"2026-11-25T18:10:00.000Z\",\"endTime\":\"2026-11-25T18:40:00.000Z\",\"durationMin\":30,\"capacity\":2,\"status\":\"PUBLISHED\",\"availability\":{\"booked\":2,\"waitlist\":1}}],\"from\":\"2026-11-25T17:40:00.000Z\",\"to\":\"2026-11-25T18:40:00.000Z\"}"
+    },
+    {
+      "id": "E2E-20",
+      "scenario": "Reduce capacity below confirmed bookings (Class asks Booking)",
+      "expected": "409 CAPACITY_BELOW_BOOKINGS",
+      "actual": "409 CAPACITY_BELOW_BOOKINGS",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"CAPACITY_BELOW_BOOKINGS\",\"message\":\"2 members are already booked; capacity cannot be lower\",\"requestId\":\"4d1236f7-2858-4660-93fb-ea33b868a9ab\"}}"
+    },
+    {
+      "id": "E2E-21",
+      "scenario": "Another trainer edits Sara's class",
+      "expected": "403",
+      "actual": "403 NOT_ASSIGNED_TRAINER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_ASSIGNED_TRAINER\",\"message\":\"You can only access your own records\",\"requestId\":\"bc39f7a3-6cef-4086-a597-d3e356168046\"}}"
+    },
+    {
+      "id": "E2E-22",
+      "scenario": "Assigned trainer increases capacity to 3",
+      "expected": "200 capacity 3",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"title\":\"E2E Evening Yoga\",\"category\":\"yoga\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio A\",\"startTime\":\"2026-11-25T18:10:00.000Z\",\"endTime\":\"2026-11-25T18:40:00.000Z\",\"durationMin\":30,\"capacity\":3,\"status\":\"PUBLISHED\",\"availability\":null,\"trainerId\":\"bc1794b2-ff4c-4e39-a0f8-1b586a900ae3\",\"studioId\":\"5e2a7c1e-0000-4000-8000-000000000"
+    },
+    {
+      "id": "E2E-23",
+      "scenario": "Waitlisted member promoted (ClassCapacityChanged -> EventBridge -> SQS -> Booking)",
+      "expected": "CONFIRMED, source WAITLIST",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"bookings\":[{\"bookingId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a#6506f17d-9b2b-4faa-9ad2-837b68972245\",\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"memberId\":\"6506f17d-9b2b-4faa-9ad2-837b68972245\",\"memberName\":\"Laila Test\",\"classTitle\":\"E2E Evening Yoga\",\"classStart\":\"2026-11-25T18:10:00.000Z\",\"classEnd\":\"2026-11-25T18:40:00.000Z\",\"status\":\"CONFIRMED\",\"source\":\"WAITLIST\",\"createdAt\":\"2026-11-2"
+    },
+    {
+      "id": "E2E-24",
+      "scenario": "Promoted member gets an in-app notification (Brevo e-mail status recorded)",
+      "expected": "WAITLIST_PROMOTED",
+      "actual": "200",
+      "pass": true,
+      "note": "emailStatus SKIPPED",
+      "evidence": "{\"notifications\":[{\"kind\":\"WAITLIST_PROMOTED\",\"title\":\"You got a place!\",\"message\":\"A place opened in E2E Evening Yoga on 25 Nov 2026, 20:10 and it is now booked for you. Cancel from \\\"My bookings\\\" if you can no longer attend.\",\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"emailStatus\":\"SKIPPED\",\"createdAt\":\"2026-11-25T17:37:06.931Z\"}]}"
+    },
+    {
+      "id": "E2E-25",
+      "scenario": "Member cancels ~30 minutes before the start (< 2 h)",
+      "expected": "200 LATE_CANCELLED",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"booking\":{\"bookingId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a#8d4d4c7b-d9e8-4b9d-95ab-5100891c5b88\",\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"memberId\":\"8d4d4c7b-d9e8-4b9d-95ab-5100891c5b88\",\"memberName\":\"Karim Test\",\"classTitle\":\"E2E Evening Yoga\",\"classStart\":\"2026-11-25T18:10:00.000Z\",\"classEnd\":\"2026-11-25T18:40:00.000Z\",\"status\":\"LATE_CANCELLED\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-"
+    },
+    {
+      "id": "E2E-26",
+      "scenario": "Late cancellation becomes a strike in Attendance (BookingLateCancelled event)",
+      "expected": "LATE_CANCEL strike",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"memberId\":\"8d4d4c7b-d9e8-4b9d-95ab-5100891c5b88\",\"strikes\":[{\"type\":\"LATE_CANCEL\",\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"at\":\"2026-11-25T17:37:07.409Z\",\"expiresOn\":\"2026-12-25T17:37:07.409Z\"}],\"strikeCount\":1,\"strikeLimit\":3,\"suspended\":false,\"suspendedUntil\":null,\"suspensionReason\":null}"
+    },
+    {
+      "id": "E2E-27",
+      "scenario": "Member sees own strike on the reliability page",
+      "expected": "200 strikeCount 1",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"memberId\":\"8d4d4c7b-d9e8-4b9d-95ab-5100891c5b88\",\"strikes\":[{\"type\":\"LATE_CANCEL\",\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"at\":\"2026-11-25T17:37:07.409Z\",\"expiresOn\":\"2026-12-25T17:37:07.409Z\"}],\"strikeCount\":1,\"strikeLimit\":3,\"suspended\":false,\"suspendedUntil\":null,\"suspensionReason\":null,\"attendanceRate\":null,\"history\":[]}"
+    },
+    {
+      "id": "E2E-28",
+      "scenario": "Member reads another member's reliability record",
+      "expected": "403",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: admin\",\"requestId\":\"69250e79-272f-4988-b77b-62e006cb777b\"}}"
+    },
+    {
+      "id": "E2E-29",
+      "scenario": "Check-in code requested 30 minutes before the class (window opens at 15)",
+      "expected": "409 ATTENDANCE_NOT_OPEN",
+      "actual": "409 ATTENDANCE_NOT_OPEN",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ATTENDANCE_NOT_OPEN\",\"message\":\"Attendance opens 15 minutes before the class\",\"details\":{\"opensAt\":\"2026-11-25T17:55:00.000Z\"},\"requestId\":\"60c49b45-64d2-4ccd-b287-bb7a5deb1f78\"}}"
+    },
+    {
+      "id": "E2E-30",
+      "scenario": "Attendance sheet built from the Booking roster",
+      "expected": "200, 2 rows UNMARKED",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"title\":\"E2E Evening Yoga\",\"startTime\":\"2026-11-25T18:10:00.000Z\",\"endTime\":\"2026-11-25T18:40:00.000Z\",\"status\":\"PUBLISHED\",\"capacity\":3},\"rows\":[{\"memberId\":\"6be7038e-747a-4a09-902f-6a76a60c46d3\",\"memberName\":\"Mona Test\",\"bookingId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a#6be7038e-747a-4a09-902f-6a76a60c46d3\",\"status\":\"UNMARKED\"},{\"memberId"
+    },
+    {
+      "id": "E2E-31",
+      "scenario": "Member opens the attendance sheet",
+      "expected": "403",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: trainer or admin\",\"requestId\":\"722a6632-d03e-4536-b541-c59a42d4eb27\"}}"
+    },
+    {
+      "id": "E2E-32",
+      "scenario": "Trainer report (own classes only)",
+      "expected": "200, only Sara",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"from\":\"2026-11-24T17:37:08.511Z\",\"to\":\"2026-11-28T17:37:08.511Z\",\"trainerId\":\"bc1794b2-ff4c-4e39-a0f8-1b586a900ae3\",\"totals\":{\"sessions\":6,\"booked\":11,\"capacity\":38,\"closedSessions\":1,\"attended\":1,\"noShow\":1,\"avgFillRate\":28.9,\"attendanceRate\":50,\"noShowRate\":50},\"byCategory\":[{\"key\":\"yoga\",\"sessions\":4,\"booked\":9,\"avgFillRate\":81.8,\"attendanceRate\":50,\"noShowRate\":50},{\"key\":\"hiit\",\"sessions\":1"
+    },
+    {
+      "id": "E2E-33",
+      "scenario": "Trainer requests another trainer's report",
+      "expected": "403 TRAINER_OWN_REPORTS_ONLY",
+      "actual": "403 TRAINER_OWN_REPORTS_ONLY",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"TRAINER_OWN_REPORTS_ONLY\",\"message\":\"You can only access your own records\",\"requestId\":\"5f73023b-7c83-45c8-867a-f74834e73d2c\"}}"
+    },
+    {
+      "id": "E2E-34",
+      "scenario": "Admin exports CSV to S3 (SSE-KMS) and gets a 5-minute pre-signed URL",
+      "expected": "201 + signed url",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"url\":\"http://localhost:4566/gym-reports/reports/f10f4769-3d0e-4f35-903b-e3642367d74f/2026-11-25T17-37-08-553Z.csv?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIA1TAGH8BIXMX8RR7I%2F20261125%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261125T173708Z&X-Amz-Expires=300&X-Amz-Security-Token=AV6%2BNGBBLkOEVJeOfMZibcNz1vQlooIVDMgJFS%2F849rem67N7SaVVxQ8yGJAw"
+    },
+    {
+      "id": "E2E-35",
+      "scenario": "Download the CSV through the pre-signed URL",
+      "expected": "CSV header row",
+      "actual": "CSV ok",
+      "pass": true,
+      "note": "",
+      "evidence": "\"startTime,title,category,trainerName,slot,capacity,booked,waitlist,fillRate,present,late,excused,noShow,attendanceRate,n\""
+    },
+    {
+      "id": "E2E-36",
+      "scenario": "Trainer's CSV export is scoped to his own classes (no Sara classes)",
+      "expected": "201, no Sara Trainer rows",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "\"startTime,title,category,trainerName,slot,capacity,booked,waitlist,fillRate,present,late,excused,noShow,attendanceRate,n\""
+    },
+    {
+      "id": "E2E-37",
+      "scenario": "Trainer creates a second class (2 days ahead)",
+      "expected": "201",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"64c41cea-1a7e-49bd-a6dc-03fa939d2bdf\",\"title\":\"E2E Pilates\",\"category\":\"pilates\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio B\",\"startTime\":\"2026-11-27T06:00:00.000Z\",\"endTime\":\"2026-11-27T06:45:00.000Z\",\"durationMin\":45,\"capacity\":5,\"status\":\"PUBLISHED\",\"availability\":null,\"trainerId\":\"bc1794b2-ff4c-4e39-a0f8-1b586a900ae3\",\"studioId\":\"5e2a7c1e-0000-4000-8000-00000000000"
+    },
+    {
+      "id": "E2E-38",
+      "scenario": "Member books it",
+      "expected": "201",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"booking\":{\"bookingId\":\"64c41cea-1a7e-49bd-a6dc-03fa939d2bdf#5466b803-966d-4369-b3ad-df703fdd2436\",\"classId\":\"64c41cea-1a7e-49bd-a6dc-03fa939d2bdf\",\"memberId\":\"5466b803-966d-4369-b3ad-df703fdd2436\",\"memberName\":\"Tarek Test\",\"classTitle\":\"E2E Pilates\",\"classStart\":\"2026-11-27T06:00:00.000Z\",\"classEnd\":\"2026-11-27T06:45:00.000Z\",\"status\":\"CONFIRMED\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-25T17:37:0"
+    },
+    {
+      "id": "E2E-39",
+      "scenario": "Trainer reschedules the booked class",
+      "expected": "200",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"64c41cea-1a7e-49bd-a6dc-03fa939d2bdf\",\"title\":\"E2E Pilates\",\"category\":\"pilates\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio B\",\"startTime\":\"2026-11-27T07:00:00.000Z\",\"endTime\":\"2026-11-27T07:45:00.000Z\",\"durationMin\":45,\"capacity\":5,\"status\":\"PUBLISHED\",\"availability\":null,\"trainerId\":\"bc1794b2-ff4c-4e39-a0f8-1b586a900ae3\",\"studioId\":\"5e2a7c1e-0000-4000-8000-00000000000"
+    },
+    {
+      "id": "E2E-40",
+      "scenario": "Edit with an out-of-date version (optimistic locking)",
+      "expected": "409",
+      "actual": "409 STALE_VERSION",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"STALE_VERSION\",\"message\":\"The class was changed by someone else. Reload and try again.\",\"requestId\":\"a5c7b1aa-9d6f-4d2a-9aff-9ac96072664d\"}}"
+    },
+    {
+      "id": "E2E-41",
+      "scenario": "Booked member notified of the new time (ClassRescheduled event)",
+      "expected": "CLASS_RESCHEDULED",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"notifications\":[{\"kind\":\"CLASS_RESCHEDULED\",\"title\":\"Class time changed\",\"message\":\"E2E Pilates moved from 27 Nov 2026, 08:00 to 27 Nov 2026, 09:00. Your place is kept.\",\"classId\":\"64c41cea-1a7e-49bd-a6dc-03fa939d2bdf\",\"emailStatus\":\"SKIPPED\",\"createdAt\":\"2026-11-25T17:37:09.929Z\"}]}"
+    },
+    {
+      "id": "E2E-42",
+      "scenario": "Trainer cancels the class",
+      "expected": "200 CANCELLED",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"64c41cea-1a7e-49bd-a6dc-03fa939d2bdf\",\"title\":\"E2E Pilates\",\"category\":\"pilates\",\"trainerName\":\"Sara Trainer\",\"studioName\":\"Studio B\",\"startTime\":\"2026-11-27T07:00:00.000Z\",\"endTime\":\"2026-11-27T07:45:00.000Z\",\"durationMin\":45,\"capacity\":5,\"status\":\"CANCELLED\",\"availability\":null,\"trainerId\":\"bc1794b2-ff4c-4e39-a0f8-1b586a900ae3\",\"studioId\":\"5e2a7c1e-0000-4000-8000-00000000000"
+    },
+    {
+      "id": "E2E-43",
+      "scenario": "Bookings cancelled by the gym (ClassCancelled event)",
+      "expected": "CANCELLED_BY_GYM",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"bookings\":[{\"bookingId\":\"64c41cea-1a7e-49bd-a6dc-03fa939d2bdf#5466b803-966d-4369-b3ad-df703fdd2436\",\"classId\":\"64c41cea-1a7e-49bd-a6dc-03fa939d2bdf\",\"memberId\":\"5466b803-966d-4369-b3ad-df703fdd2436\",\"memberName\":\"Tarek Test\",\"classTitle\":\"E2E Pilates\",\"classStart\":\"2026-11-27T07:00:00.000Z\",\"classEnd\":\"2026-11-27T07:45:00.000Z\",\"status\":\"CANCELLED_BY_GYM\",\"source\":\"DIRECT\",\"createdAt\":\"2026-11-2"
+    },
+    {
+      "id": "E2E-44",
+      "scenario": "Booking a cancelled class",
+      "expected": "409 CLASS_NOT_BOOKABLE",
+      "actual": "409 CLASS_NOT_BOOKABLE",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"CLASS_NOT_BOOKABLE\",\"message\":\"This class is cancelled\",\"requestId\":\"e77e919e-0ed4-4315-bbad-55ef75cba0fb\"}}"
+    },
+    {
+      "id": "E2E-45",
+      "scenario": "Admin audit log has actions from every service",
+      "expected": "USER_REGISTERED, CLASS_CREATED, BOOKING_CREATED",
+      "actual": "200",
+      "pass": true,
+      "note": "CLASS_CANCELLED, CLASS_UPDATED, BOOKING_CREATED, CLASS_CREATED, REPORT_EXPORTED, BOOKING_CANCELLED, WAITLIST_JOINED, USER_REGISTERED, MEMBER_CHECKED_IN, CHECKIN_CODE_ISSUED, SERIES_CREATED, SESSION_CLOSED",
+      "evidence": "{\"entries\":[{\"at\":\"2026-11-25T17:37:10.711Z\",\"service\":\"class-service\",\"action\":\"CLASS_CANCELLED\",\"outcome\":\"SUCCESS\",\"actorId\":\"bc1794b2-ff4c-4e39-a0f8-1b586a900ae3\",\"actorRole\":\"trainer\",\"targetType\":\"class\",\"targetId\":\"64c41cea-1a7e-49bd-a6dc-03fa939d2bdf\",\"details\":{\"reason\":\"Studio maintenance\"}},{\"at\":\"2026-11-25T17:37:08.645Z\",\"service\":\"class-service\",\"action\":\"CLASS_UPDATED\",\"outcome\":\"SU"
+    },
+    {
+      "id": "E2E-46",
+      "scenario": "Trainer opens the audit log",
+      "expected": "403",
+      "actual": "403 ROLE_NOT_ALLOWED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"ROLE_NOT_ALLOWED\",\"message\":\"This action requires role: admin\",\"requestId\":\"f4fcf582-f98e-4ad4-8efd-24f62d3ef77d\"}}"
+    },
+    {
+      "id": "E2E-47",
+      "scenario": "Trainer not assigned to the class issues a code",
+      "expected": "403 NOT_ASSIGNED_TRAINER",
+      "actual": "403 NOT_ASSIGNED_TRAINER",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_ASSIGNED_TRAINER\",\"message\":\"You can only access your own records\",\"requestId\":\"037b7745-2c78-46a2-a355-c30d4e7bcac5\"}}"
+    },
+    {
+      "id": "E2E-48",
+      "scenario": "Assigned trainer issues a one-time check-in code",
+      "expected": "201 + 6 digits",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"code\":\"900590\",\"expiresAt\":\"2026-11-25T18:06:00.032Z\"}"
+    },
+    {
+      "id": "E2E-49",
+      "scenario": "Member enters a wrong code",
+      "expected": "400 INVALID_CHECKIN_CODE",
+      "actual": "400 INVALID_CHECKIN_CODE",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"INVALID_CHECKIN_CODE\",\"message\":\"Wrong code (4 attempts left)\",\"requestId\":\"add89f7b-a8d3-4214-8e6c-586da712e1fc\"}}"
+    },
+    {
+      "id": "E2E-50",
+      "scenario": "Member checks in with the right code",
+      "expected": "201 PRESENT",
+      "actual": "201",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"attendance\":{\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"status\":\"PRESENT\",\"recordedAt\":\"2026-11-25T17:56:00.316Z\"}}"
+    },
+    {
+      "id": "E2E-51",
+      "scenario": "Member whose booking was cancelled uses the code",
+      "expected": "403 NOT_BOOKED",
+      "actual": "403 NOT_BOOKED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"NOT_BOOKED\",\"message\":\"You do not have a confirmed booking for this class\",\"requestId\":\"f1bd6759-5e18-4a23-a238-96472600ae07\"}}"
+    },
+    {
+      "id": "E2E-52",
+      "scenario": "Close the session before it ends",
+      "expected": "409 SESSION_NOT_ENDED",
+      "actual": "409 SESSION_NOT_ENDED",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"error\":{\"code\":\"SESSION_NOT_ENDED\",\"message\":\"A session can only be closed after it ends\",\"requestId\":\"57d2a7f5-9446-4f75-8c3a-f56b1bff4874\"}}"
+    },
+    {
+      "id": "E2E-53",
+      "scenario": "Attendance sheet shows the checked-in member",
+      "expected": "200, m1 PRESENT",
+      "actual": "200",
+      "pass": true,
+      "note": "",
+      "evidence": "{\"class\":{\"classId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a\",\"title\":\"E2E Evening Yoga\",\"startTime\":\"2026-11-25T18:10:00.000Z\",\"endTime\":\"2026-11-25T18:40:00.000Z\",\"status\":\"PUBLISHED\",\"capacity\":3},\"rows\":[{\"memberId\":\"6be7038e-747a-4a09-902f-6a76a60c46d3\",\"memberName\":\"Mona Test\",\"bookingId\":\"5e2cafbe-25d4-438f-9407-20a3ef0ebe6a#6be7038e-747a-4a09-902f-6a76a60c46d3\",\"status\":\"PRESENT\",\"method\":\"CO"
+    }
+  ]
+}
