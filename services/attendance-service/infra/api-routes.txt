@@ -1,0 +1,28 @@
+# Routes for the attendance-service HTTP API (one per line: METHOD PATH).
+# Lab 7 style: every route is listed explicitly; anything else gets 404 from API Gateway.
+# /internal/* routes are NOT here: other services reach them with a direct Lambda invoke.
+GET /api/health
+GET /api/attendance/{classId}
+PUT /api/attendance/{classId}
+POST /api/attendance/{classId}/code
+POST /api/attendance/{classId}/check-in
+POST /api/attendance/{classId}/close
+PATCH /api/attendance/{classId}/{memberId}
+GET /api/reliability/me
+GET /api/reliability/{memberId}
+POST /api/reliability/{memberId}/lift
+GET /api/reports/classes
+POST /api/reports/export
+GET /api/audit
+# CORS pre-flight (the browser asks OPTIONS before POST/PUT/PATCH/DELETE)
+OPTIONS /api/attendance/{classId}
+OPTIONS /api/attendance/{classId}/check-in
+OPTIONS /api/attendance/{classId}/close
+OPTIONS /api/attendance/{classId}/code
+OPTIONS /api/attendance/{classId}/{memberId}
+OPTIONS /api/audit
+OPTIONS /api/reliability/me
+OPTIONS /api/reliability/{memberId}
+OPTIONS /api/reliability/{memberId}/lift
+OPTIONS /api/reports/classes
+OPTIONS /api/reports/export
