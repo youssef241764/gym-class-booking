@@ -1,0 +1,29 @@
+### class-service on your PC (Lab 4) - start it first:  cd services/class-service && npm run dev
+### Open in VS Code with the REST Client extension and click "Send Request".
+### For requests that need a token: sign in with identity/requests.http first and paste the accessToken.
+
+@baseUrl = http://localhost:3002
+@token = PASTE-ACCESS-TOKEN-HERE
+
+### Health -> 200, runtime pc
+GET {{baseUrl}}/api/health
+
+### Timetable (no sign-in needed) -> 200
+GET {{baseUrl}}/api/classes
+
+### Bad filter -> 400 VALIDATION_FAILED
+GET {{baseUrl}}/api/classes?category=karate
+
+### Studios -> 200 (needs a token)
+GET {{baseUrl}}/api/studios
+Authorization: Bearer {{token}}
+
+### Create a class as a trainer -> 201, or 409 SCHEDULING_RULES_FAILED with the broken rules
+POST {{baseUrl}}/api/classes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "title": "Morning Yoga", "category": "yoga", "studioId": "5e2a7c1e-0000-4000-8000-000000000001", "startTime": "2026-12-01T08:00:00+02:00", "durationMin": 60, "capacity": 12, "publish": true }
+
+### Unknown class -> 404
+GET {{baseUrl}}/api/classes/00000000-0000-4000-8000-000000000000

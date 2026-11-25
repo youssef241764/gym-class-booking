@@ -1,0 +1,18 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/api/classes",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/api/classes",
+      "sourceIp": "127.0.0.1"
+    }
+  },
+  "isBase64Encoded": false,
+  "body": "{\"title\":\"Morning Yoga\",\"category\":\"yoga\",\"studioId\":\"5e2a7c1e-0000-4000-8000-000000000001\",\"startTime\":\"2026-12-01T08:00:00Z\",\"durationMin\":60,\"capacity\":10}"
+}
