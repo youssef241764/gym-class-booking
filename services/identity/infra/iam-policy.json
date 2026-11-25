@@ -1,0 +1,72 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "WriteOwnLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": [
+        "arn:aws:logs:us-east-1:000000000000:log-group:/aws/lambda/gym-identity:*",
+        "arn:aws:logs:us-east-1:000000000000:log-group:/gym/identity:*"
+      ]
+    },
+    {
+      "Sid": "AuditAppendOnly",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:PutItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-audit"
+      ]
+    },
+    {
+      "Sid": "ManageUsersInPool",
+      "Effect": "Allow",
+      "Action": [
+        "cognito-idp:AdminCreateUser",
+        "cognito-idp:AdminSetUserPassword",
+        "cognito-idp:AdminAddUserToGroup",
+        "cognito-idp:AdminRemoveUserFromGroup",
+        "cognito-idp:AdminUserGlobalSignOut",
+        "cognito-idp:AdminDisableUser",
+        "cognito-idp:AdminEnableUser",
+        "cognito-idp:InitiateAuth",
+        "cognito-idp:GlobalSignOut"
+      ],
+      "Resource": [
+        "arn:aws:cognito-idp:us-east-1:000000000000:userpool/*"
+      ]
+    },
+    {
+      "Sid": "TablesUsers",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:Scan"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-users",
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-users/index/*"
+      ]
+    },
+    {
+      "Sid": "TablesLoginThrottle",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:DeleteItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-login-throttle",
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-login-throttle/index/*"
+      ]
+    }
+  ]
+}

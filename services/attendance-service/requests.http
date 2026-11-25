@@ -1,0 +1,33 @@
+### attendance-service on your PC (Lab 4) - start it first:  cd services/attendance-service && npm run dev
+### Open in VS Code with the REST Client extension and click "Send Request".
+### For requests that need a token: sign in with identity/requests.http first and paste the accessToken.
+
+@baseUrl = http://localhost:3004
+@token = PASTE-ACCESS-TOKEN-HERE
+
+### Health -> 200, runtime pc
+GET {{baseUrl}}/api/health
+
+@classId = PASTE-A-classId
+
+### My reliability (strikes, suspension, attendance rate) as a member -> 200
+GET {{baseUrl}}/api/reliability/me
+Authorization: Bearer {{token}}
+
+### Check in with the 6-digit code from the trainer -> 201 (400 wrong code, 403 NOT_BOOKED)
+POST {{baseUrl}}/api/attendance/{{classId}}/check-in
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "code": "123456" }
+
+### Attendance sheet as the trainer of the class -> 200 (403 for other trainers)
+GET {{baseUrl}}/api/attendance/{{classId}}
+Authorization: Bearer {{token}}
+
+### Audit log as admin -> 200 (403 for everyone else)
+GET {{baseUrl}}/api/audit?day=2026-11-25
+Authorization: Bearer {{token}}
+
+### Internal endpoint without the service key -> 403 INTERNAL_ONLY
+GET {{baseUrl}}/internal/members/00000000-0000-4000-8000-000000000000/eligibility

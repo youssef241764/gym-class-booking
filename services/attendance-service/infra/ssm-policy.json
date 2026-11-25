@@ -1,0 +1,12 @@
+{
+  "strikeLimit": 3,
+  "strikeWindowDays": 30,
+  "suspensionDays": 7,
+  "checkinOpensBeforeMin": 15,
+  "checkinClosesAfterEndMin": 30,
+  "lateAfterMin": 10,
+  "codeTtlMin": 10,
+  "maxCodeAttempts": 5,
+  "correctionWindowHours": 48,
+  "autoCloseAfterEndMin": 30
+}
