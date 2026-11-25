@@ -1,0 +1,136 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "WriteOwnLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": [
+        "arn:aws:logs:us-east-1:000000000000:log-group:/aws/lambda/gym-class-service:*",
+        "arn:aws:logs:us-east-1:000000000000:log-group:/gym/class-service:*"
+      ]
+    },
+    {
+      "Sid": "AuditAppendOnly",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:PutItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-audit"
+      ]
+    },
+    {
+      "Sid": "ReadUserProfiles",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:BatchGetItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-users"
+      ]
+    },
+    {
+      "Sid": "PublishOwnMetrics",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricData"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "cloudwatch:namespace": "GymBooking"
+        }
+      }
+    },
+    {
+      "Sid": "PublishEvents",
+      "Effect": "Allow",
+      "Action": [
+        "events:PutEvents"
+      ],
+      "Resource": [
+        "arn:aws:events:us-east-1:000000000000:event-bus/gym-events"
+      ]
+    },
+    {
+      "Sid": "ReadOwnPolicy",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameter"
+      ],
+      "Resource": [
+        "arn:aws:ssm:us-east-1:000000000000:parameter/gym/class-service/policy"
+      ]
+    },
+    {
+      "Sid": "ConsumeClassEventsQueue",
+      "Effect": "Allow",
+      "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl"
+      ],
+      "Resource": [
+        "arn:aws:sqs:us-east-1:000000000000:gym-class-events"
+      ]
+    },
+    {
+      "Sid": "TablesClasses",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-classes",
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-classes/index/*"
+      ]
+    },
+    {
+      "Sid": "TablesStudios",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Scan"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-studios",
+        "arn:aws:dynamodb:us-east-1:000000000000:table/gym-studios/index/*"
+      ]
+    },
+    {
+      "Sid": "ReadInternalKeys",
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:us-east-1:000000000000:secret:gym/class-service/internal-key*",
+        "arn:aws:secretsmanager:us-east-1:000000000000:secret:gym/booking-service/internal-key*"
+      ]
+    },
+    {
+      "Sid": "CallOtherServices",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:InvokeFunction"
+      ],
+      "Resource": [
+        "arn:aws:lambda:us-east-1:000000000000:function:gym-booking-service"
+      ]
+    }
+  ]
+}

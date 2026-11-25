@@ -1,0 +1,21 @@
+# Routes for the class-service HTTP API (one per line: METHOD PATH).
+# Lab 7 style: every route is listed explicitly; anything else gets 404 from API Gateway.
+# /internal/* routes are NOT here: other services reach them with a direct Lambda invoke.
+GET /api/health
+GET /api/classes
+GET /api/classes/{id}
+POST /api/classes
+POST /api/classes/series
+PATCH /api/classes/{id}
+POST /api/classes/{id}/publish
+POST /api/classes/{id}/cancel
+DELETE /api/classes/{id}
+GET /api/studios
+POST /api/studios
+# CORS pre-flight (the browser asks OPTIONS before POST/PUT/PATCH/DELETE)
+OPTIONS /api/classes
+OPTIONS /api/classes/series
+OPTIONS /api/classes/{id}
+OPTIONS /api/classes/{id}/cancel
+OPTIONS /api/classes/{id}/publish
+OPTIONS /api/studios
